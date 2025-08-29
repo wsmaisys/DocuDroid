@@ -1,9 +1,6 @@
 from langchain_community.document_loaders import WebBaseLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-try:
-    from langchain_core.vectorstores import InMemoryVectorStore
-except ImportError:
-    from langchain.vectorstores import InMemoryVectorStore
+from langchain_community.vectorstores import InMemoryVectorStore
 from langchain_mistralai import MistralAIEmbeddings
 import os
 from dotenv import load_dotenv

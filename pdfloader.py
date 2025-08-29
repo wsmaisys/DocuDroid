@@ -1,8 +1,5 @@
 from langchain_community.document_loaders import PyPDFLoader
-try:
-    from langchain_core.vectorstores import InMemoryVectorStore
-except ImportError:
-    from langchain.vectorstores import InMemoryVectorStore
+from langchain_community.vectorstores import InMemoryVectorStore
 from langchain_mistralai import MistralAIEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.tools import StructuredTool
