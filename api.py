@@ -46,7 +46,7 @@ class WebUploadRequest(BaseModel):
 async def startup_event():
     print("🚀 Starting Chat Manager API")
     print("📁 Checking environment...")
-    if os.getenv("MISTRAL_API_KEY"):
+    if os.getenv("mistral_api_key"):
         print("✅ MISTRAL_API_KEY found")
     else:
         print("❌ MISTRAL_API_KEY not found")
