@@ -1,5 +1,5 @@
 from langchain_community.document_loaders import PyPDFLoader
-from langchain_community.vectorstores import InMemoryVectorStore
+from langchain_core.vectorstores import InMemoryVectorStore
 from langchain_mistralai import MistralAIEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.tools import StructuredTool
