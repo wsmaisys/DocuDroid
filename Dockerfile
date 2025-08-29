@@ -20,7 +20,7 @@ COPY requirements.txt constraints.txt ./
 
 # Install Python dependencies (non-LangChain packages first)
 RUN pip install --no-cache-dir fastapi uvicorn python-multipart python-dotenv beautifulsoup4 requests pypdf && \
-    pip install --no-cache-dir langchain==0.1.0 langchain-core==0.1.9 langchain-community==0.0.12 langchain-mistralai==0.0.3
+    pip install --no-cache-dir langchain==0.1.0 langchain-core>=0.3.0 langchain-community==0.0.12 langchain-mistralai==0.0.3
 
 # Copy the project files
 COPY . .
