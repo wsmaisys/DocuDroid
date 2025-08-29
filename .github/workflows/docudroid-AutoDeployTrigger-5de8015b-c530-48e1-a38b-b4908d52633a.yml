@@ -30,8 +30,8 @@ jobs:
         uses: azure/container-apps-deploy-action@v2
         with:
           appSourcePath: ${{ github.workspace }}
-          _dockerfilePathKey_: _dockerfilePath_
-          _targetLabelKey_: _targetLabel_
+          dockerfilePath: Dockerfile
+          targetPort: 8000
           registryUrl: ca17cb573210acr.azurecr.io
           registryUsername: ${{ secrets.DOCUDROID_REGISTRY_USERNAME }}
           registryPassword: ${{ secrets.DOCUDROID_REGISTRY_PASSWORD }}
