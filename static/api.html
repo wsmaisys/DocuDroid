@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <title>DocuDroid API Documentation</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-json.min.js"></script>
+    <style>
+        :root {
+            --primary: #00a3ff;
+            --primary-dark: #0077cc;
+            --secondary: #7000ff;
+            --background: #0a0f1b;
+            --surface: #131c2e;
+            --surface-raised: #1a2438;
+            --text: #e6edf7;
+            --text-dim: #8b95a5;
+            --success: #00cc88;
+            --warning: #ffaa00;
+            --error: #ff4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            background-image: 
+                radial-gradient(circle at 100% 0%, rgba(0, 163, 255, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 0% 100%, rgba(112, 0, 255, 0.05) 0%, transparent 50%);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            background: var(--surface);
+            padding: 3rem;
+            margin-bottom: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+        }
+
+        .header h1 {
+            color: var(--text);
+            margin-bottom: 1rem;
+            font-size: 2.5rem;
+            background: linear-gradient(120deg, var(--primary), var(--secondary));
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .header p {
+            color: var(--text-dim);
+            font-size: 1.1rem;
+        }
+
+        .section {
+            background: var(--surface);
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            border-radius: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .section:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+        }
+
+        h2 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        h3 {
+            color: var(--text);
+            margin: 1.5rem 0 1rem 0;
+            font-size: 1.3rem;
+        }
+
+        .endpoint {
+            background: var(--surface-raised);
+            padding: 2rem;
+            margin: 1.5rem 0;
+            border-radius: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .endpoint:hover {
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(0, 163, 255, 0.1);
+        }
+
+        .method {
+            display: inline-block;
+            padding: 0.4rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            margin-right: 1rem;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+        }
+
+        .post { 
+            background: linear-gradient(135deg, var(--success), #00d4a0);
+            color: white; 
+        }
+
+        .get { 
+            background: linear-gradient(135deg, var(--primary), #00d4ff);
+            color: white; 
+        }
+
+        .endpoint-url {
+            display: flex;
+            align-items: center;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 0.5rem;
+            overflow-x: auto;
+        }
+
+        code:not([class*="language-"]) {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.2rem 0.6rem;
+            border-radius: 0.4rem;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.9em;
+            color: var(--primary);
+        }
+
+        pre[class*="language-"] {
+            background: var(--background) !important;
+            border-radius: 0.8rem;
+            padding: 1.5rem !important;
+            margin: 1.5rem 0;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            color: var(--primary);
+            text-decoration: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 0.8rem;
+            border: 1px solid var(--primary);
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            background: rgba(0, 163, 255, 0.1);
+        }
+
+        .back-link:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 163, 255, 0.2);
+        }
+
+        .back-link::before {
+            content: '←';
+            margin-right: 0.5rem;
+            font-size: 1.2em;
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 1rem;
+            margin: 1rem 0;
+        }
+
+        li {
+            margin: 0.8rem 0;
+            display: flex;
+            align-items: flex-start;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        li:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        li::before {
+            content: '•';
+            color: var(--primary);
+            margin-right: 0.8rem;
+            font-size: 1.5em;
+            line-height: 1.2;
+        }
+
+        .api-version {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            font-size: 0.9rem;
+            margin-left: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .parameter-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+
+        .parameter-table th,
+        .parameter-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .parameter-table th {
+            background: rgba(255, 255, 255, 0.05);
+            font-weight: 600;
+        }
+
+        .parameter-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .required {
+            color: var(--error);
+            font-size: 0.8em;
+            margin-left: 0.5rem;
+        }
+
+        .optional {
+            color: var(--text-dim);
+            font-size: 0.8em;
+            margin-left: 0.5rem;
+        }
+
+        .example-section {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .note {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border-left: 4px solid var(--warning);
+            margin: 1rem 0;
+        }
+
+        .success-response, .error-response {
+            margin-top: 1rem;
+        }
+
+        .success-response h4::before {
+            content: '✅';
+            margin-right: 0.5rem;
+        }
+
+        .error-response h4::before {
+            content: '❌';
+            margin-right: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .header {
+                padding: 2rem;
+            }
+
+            .endpoint {
+                padding: 1.5rem;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .parameter-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--surface);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--surface-raised);
+            border-radius: 4px;
+            border: 2px solid var(--surface);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-link">Back to DocuDroid</a>
+
+        <div class="header">
+            <h1>DocuDroid API Documentation</h1>
+            <p>Complete guide to integrating with the DocuDroid API <span class="api-version">v1.0.0</span></p>
+        </div>
+
+        <div class="section">
+            <h2>🚀 Getting Started</h2>
+            <p>DocuDroid API enables you to:</p>
+            <ul>
+                <li>Create chat sessions for contextual conversations</li>
+                <li>Upload and analyze PDF documents</li>
+                <li>Process and analyze web content</li>
+                <li>Interact with AI through different modes (general, PDF, web)</li>
+            </ul>
+            <div class="note">
+                <strong>Note:</strong> All requests use JSON for data exchange unless specified otherwise (like file uploads).
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🔌 Core Concepts</h2>
+            <h3>Chat Modes</h3>
+            <ul>
+                <li><strong>General Mode:</strong> Standard chat without document context</li>
+                <li><strong>PDF Mode:</strong> Chat with context from uploaded PDF documents</li>
+                <li><strong>Web Mode:</strong> Chat with context from processed web content</li>
+            </ul>
+            <h3>Session Management</h3>
+            <p>Each chat session is identified by a unique <code>thread_id</code>. This ID must be included in all subsequent requests to maintain context.</p>
+        </div>
+
+        <div class="section">
+            <h2>📡 API Endpoints</h2>
+
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <div class="endpoint-url">
+                    <code>/session/init</code>
+                </div>
+                <h3>Initialize Chat Session</h3>
+                <p>Creates a new chat session and returns a thread ID for subsequent requests.</p>
+                
+                <div class="success-response">
+                    <h4>Success Response:</h4>
+                    <pre><code class="language-json">{
+    "thread_id": "550e8400-e29b-41d4-a716-446655440000",
+    "message": "Welcome! You can:\n1. Chat generally\n2. Upload PDFs for analysis\n3. Share URLs for web content analysis"
+}</code></pre>
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <div class="endpoint-url">
+                    <code>/chat</code>
+                </div>
+                <h3>Send Chat Message</h3>
+                <p>Send a message and receive an AI response based on the selected mode.</p>
+                
+                <table class="parameter-table">
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td>message<span class="required">required</span></td>
+                        <td>string</td>
+                        <td>The user's message or question</td>
+                    </tr>
+                    <tr>
+                        <td>thread_id<span class="required">required</span></td>
+                        <td>string</td>
+                        <td>Session identifier from /session/init</td>
+                    </tr>
+                    <tr>
+                        <td>mode<span class="optional">optional</span></td>
+                        <td>string</td>
+                        <td>Chat mode: "general" (default), "pdf", or "web"</td>
+                    </tr>
+                </table>
+
+                <div class="example-section">
+                    <h4>Example Request:</h4>
+                    <pre><code class="language-json">{
+    "message": "What's in the uploaded PDF?",
+    "thread_id": "550e8400-e29b-41d4-a716-446655440000",
+    "mode": "pdf"
+}</code></pre>
+
+                    <div class="success-response">
+                        <h4>Success Response:</h4>
+                        <pre><code class="language-json">{
+    "response": "Based on the PDF content, [detailed response...]"
+}</code></pre>
+                    </div>
+
+                    <div class="error-response">
+                        <h4>Error Response:</h4>
+                        <pre><code class="language-json">{
+    "detail": "No PDF content has been loaded yet. Please upload a PDF first."
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <div class="endpoint-url">
+                    <code>/upload/pdf</code>
+                </div>
+                <h3>Upload PDF Document</h3>
+                <p>Upload a PDF file for analysis. Uses multipart/form-data format.</p>
+
+                <table class="parameter-table">
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td>file<span class="required">required</span></td>
+                        <td>file</td>
+                        <td>PDF file to upload (max size: 10MB)</td>
+                    </tr>
+                    <tr>
+                        <td>thread_id<span class="required">required</span></td>
+                        <td>string</td>
+                        <td>Session identifier</td>
+                    </tr>
+                </table>
+
+                <div class="success-response">
+                    <h4>Success Response:</h4>
+                    <pre><code class="language-json">{
+    "status": "processing",
+    "message": "📄 Processing PDF: document.pdf...",
+    "filename": "document.pdf",
+    "process_id": "proc-550e8400-e29b-41d4-a716-446655440000"
+}</code></pre>
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <div class="endpoint-url">
+                    <code>/upload/web</code>
+                </div>
+                <h3>Add Web Content</h3>
+                <p>Process content from provided URLs for analysis.</p>
+
+                <table class="parameter-table">
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td>thread_id<span class="required">required</span></td>
+                        <td>string</td>
+                        <td>Session identifier</td>
+                    </tr>
+                    <tr>
+                        <td>urls<span class="required">required</span></td>
+                        <td>array</td>
+                        <td>Array of URLs to process</td>
+                    </tr>
+                </table>
+
+                <div class="example-section">
+                    <h4>Example Request:</h4>
+                    <pre><code class="language-json">{
+    "thread_id": "550e8400-e29b-41d4-a716-446655440000",
+    "urls": [
+        "https://example.com/article1",
+        "https://example.com/article2"
+    ]
+}</code></pre>
+
+                    <div class="success-response">
+                        <h4>Success Response:</h4>
+                        <pre><code class="language-json">{
+    "status": "success",
+    "message": "🌐 Successfully added web content. You can now ask questions about it."
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <div class="endpoint-url">
+                    <code>/status/{process_id}</code>
+                </div>
+                <h3>Check Processing Status</h3>
+                <p>Check the status of a PDF or web content processing task.</p>
+
+                <div class="success-response">
+                    <h4>Success Response:</h4>
+                    <pre><code class="language-json">{
+    "status": "completed",
+    "message": "✅ Successfully processed document.pdf. You can now ask questions about its content."
+}</code></pre>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>⚡ Best Practices</h2>
+            <ul>
+                <li>Always initialize a new session before starting interactions</li>
+                <li>Store the thread_id securely and include it in all subsequent requests</li>
+                <li>For PDF uploads, poll the status endpoint until processing is complete</li>
+                <li>Keep PDF files under 10MB for optimal processing</li>
+                <li>When using web mode, ensure URLs are accessible and contain relevant content</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>⚠️ Error Handling</h2>
+            <p>The API uses standard HTTP status codes and provides detailed error messages:</p>
+            <table class="parameter-table">
+                <tr>
+                    <th>Status Code</th>
+                    <th>Description</th>
+                    <th>Common Scenarios</th>
+                </tr>
+                <tr>
+                    <td>200</td>
+                    <td>Success</td>
+                    <td>Request processed successfully</td>
+                </tr>
+                <tr>
+                    <td>400</td>
+                    <td>Bad Request</td>
+                    <td>Missing parameters, invalid file type</td>
+                </tr>
+                <tr>
+                    <td>404</td>
+                    <td>Not Found</td>
+                    <td>Invalid process_id, resource not found</td>
+                </tr>
+                <tr>
+                    <td>413</td>
+                    <td>Payload Too Large</td>
+                    <td>PDF file exceeds size limit</td>
+                </tr>
+                <tr>
+                    <td>500</td>
+                    <td>Internal Server Error</td>
+                    <td>Processing error, server issues</td>
+                </tr>
+            </table>
+            
+            <div class="example-section">
+                <h4>Error Response Format:</h4>
+                <pre><code class="language-json">{
+    "detail": "Detailed error message explaining what went wrong"
+}</code></pre>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🔄 Rate Limiting</h2>
+            <div class="note">
+                <strong>Note:</strong> The demo version does not implement rate limiting. In production, appropriate rate limiting should be implemented based on your requirements.
+            </div>
+            <p>Recommended limits for production:</p>
+            <ul>
+                <li>Chat messages: 60 requests per minute</li>
+                <li>PDF uploads: 10 requests per minute</li>
+                <li>Web content: 30 requests per minute</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Prism.js syntax highlighting
+        Prism.highlightAll();
+    </script>
+</body>
+</html>
