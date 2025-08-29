@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 
 # Load env variables
 load_dotenv()
-api_key = os.getenv("mistral_api_key")
+api_key = os.getenv("MISTRAL_API_KEY")
 if not api_key:
     raise ValueError("MISTRAL_API_KEY not found in .env file")
 

@@ -7,7 +7,7 @@ import os
 
 # Load environment variables
 load_dotenv()
-api_key = os.getenv("mistral_api_key")
+api_key = os.getenv("MISTRAL_API_KEY")
 
 # Initialize LLM
 llm = ChatMistralAI(model="mistral-small-latest")
