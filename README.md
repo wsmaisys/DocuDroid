@@ -1,138 +1,188 @@
 # DocuDroid
 
-DocuDroid is an intelligent document assistant that combines the power of LLMs with document analysis capabilities. It provides a modern, interactive interface for chatting, analyzing PDFs, and extracting insights from web content.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Deployment Status](https://img.shields.io/badge/deployment-active-success)](https://docudroid.lemonbay-750e7928.centralindia.azurecontainerapps.io/)
+[![Python Version](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 
-![DocuDroid Interface](DocuDroid Image.png)
+DocuDroid is an intelligent document analysis and chat platform that harnesses the power of Large Language Models (LLMs) through Mistral AI. It provides a modern, interactive interface for document analysis, web content processing, and natural language interactions.
 
-## Features
+🌐 **[Try DocuDroid Live](https://docudroid.lemonbay-750e7928.centralindia.azurecontainerapps.io/)**
 
-- 🤖 **General Chat**: Engage in natural conversations with the AI assistant
-- 📄 **PDF Analysis**: Upload and analyze PDF documents
-- 🌐 **Web Content Analysis**: Extract and analyze content from web URLs
-- 💬 **Real-time Processing**: Live status updates for document processing
-- 🎯 **Multi-mode Operation**: Switch seamlessly between chat, PDF, and web modes
-- 🔍 **Smart Context**: Maintains context for more relevant responses
-- 🎨 **Modern UI**: Clean, responsive dark theme interface
+![DocuDroid Interface](static/DocuDroid%20Image.png)
 
-## Getting Started
+## 🌟 Key Features
+
+- 🤖 **Intelligent Chat**: Natural language conversations powered by Mistral AI
+- 📄 **PDF Analysis**: Upload and analyze PDF documents with semantic search capabilities
+- 🌐 **Web Content Processing**: Extract and analyze content from web URLs
+- 💬 **Context-Aware**: Maintains conversation context for more relevant responses
+- 🚀 **Real-time Processing**: Live status updates and instant responses
+- � **Modern UI**: Clean, responsive interface with dark theme
+- ☁️ **Cloud Deployment**: Hosted on Azure Container Apps for scalability
+
+## 💡 Use Cases
+
+### Document Analysis
+- **Contract Review**: Extract key terms, dates, and obligations
+- **Research Papers**: Summarize findings and extract methodologies
+- **Technical Documentation**: Quick navigation and understanding of complex docs
+- **Legal Documents**: Extract clauses and analyze legal language
+
+### Web Research
+- **Content Aggregation**: Analyze multiple web sources simultaneously
+- **Market Research**: Extract insights from various web pages
+- **Competitive Analysis**: Process and compare information from different sources
+- **Knowledge Base Creation**: Build searchable knowledge bases from web content
+
+## 🚀 Getting Started
 
 ### Prerequisites
-
 - Python 3.11 or higher
-- Mistral AI API key
+- Mistral AI API key ([Get one here](https://mistral.ai))
 
-### Installation
+### Local Development Setup
 
-1. Clone the repository:
+1. **Clone the Repository**
+   ```bash
+   git clone https://github.com/wsmaisys/DocuDroid.git
+   cd DocuDroid
+   ```
+
+2. **Install Dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. **Environment Configuration**
+   Create a `.env` file:
+   ```env
+   MISTRAL_API_KEY=your_api_key_here
+   TEXT_EMBEDDING=https://api.mistral.ai/v1/embeddings
+   TEXT_EMBEDDING_MODEL=mistral-embed
+   ```
+
+4. **Run the Application**
+   ```bash
+   uvicorn api:app --host 0.0.0.0 --port 8000
+   ```
+
+### 🐳 Docker Deployment
+
 ```bash
-git clone https://github.com/yourusername/docudroid.git
-cd docudroid
+docker build -t docudroid .
+docker run -p 8000:8000 --env-file .env docudroid
 ```
 
-2. Install dependencies:
-```bash
-pip install -r requirements.txt
+## 🏗️ Architecture
+
+### Component Overview
+```
+DocuDroid/
+├── api.py              # FastAPI application and endpoints
+├── chat_manager.py     # Core chat and document processing
+├── pdfloader.py        # PDF processing with vector store
+├── webloader.py        # Web content extraction and analysis
+├── static/            # Frontend assets and UI
+└── .env              # Configuration
 ```
 
-3. Create a `.env` file in the project root and add your Mistral AI API key:
-```env
-MISTRAL_API_KEY=your_api_key_here
-```
-
-4. Run the application:
-```bash
-python -m uvicorn api:app --reload
-```
-
-5. Open your browser and navigate to `http://localhost:8000`
-
-## Usage
-
-### General Chat Mode
-- Select "General Chat" mode
-- Type your question and get instant responses
-
-### PDF Analysis Mode
-1. Switch to "PDF Chat" mode
-2. Upload your PDF document
-3. Ask questions about the document content
-4. Get contextual responses based on the document
-
-### Web Content Mode
-1. Switch to "Web Chat" mode
-2. Enter URLs to analyze
-3. Ask questions about the web content
-4. Get insights from the processed web pages
-
-## API Documentation
-
-The API documentation is available at `/docs.html` when running the application. It includes:
-- Endpoint descriptions
-- Request/response formats
-- Error handling
-- Usage examples
-
-## Project Structure
-
-```
-docudroid/
-├── api.py              # FastAPI application and routes
-├── chat_manager.py     # Core chat and document processing logic
-├── pdfloader.py        # PDF processing utilities
-├── webloader.py        # Web content processing utilities
-├── static/
-│   ├── index.html     # Main application UI
-│   └── docs.html      # API documentation
-└── .env               # Environment variables
-```
-
-## Technologies Used
-
+### Technology Stack
 - **Backend**:
-  - FastAPI
-  - LangChain
-  - Mistral AI
-  - Python 3.13
+  - FastAPI: High-performance web framework
+  - LangChain: LLM application framework
+  - Mistral AI: State-of-the-art language model
+  - InMemoryVectorStore: Efficient document retrieval
 
 - **Frontend**:
-  - HTML5
-  - CSS3
-  - JavaScript
-  - Marked.js for Markdown rendering
+  - Modern HTML5 & CSS3
+  - Vanilla JavaScript for lightweight performance
+  - Responsive design principles
 
-## Features in Detail
+- **Deployment**:
+  - Azure Container Apps
+  - GitHub Actions for CI/CD
+  - Docker containerization
+
+## 🔧 API Endpoints
 
 ### PDF Processing
-- Chunks documents for efficient processing
-- Creates vector embeddings for semantic search
-- Maintains session-based document context
+- `POST /upload_pdf`
+  - Upload and process PDF documents
+  - Returns processing status and document ID
 
-### Web Content Analysis
-- Extracts main content from web pages
-- Processes multiple URLs simultaneously
-- Creates searchable knowledge base from web content
+### Web Content
+- `POST /process_urls`
+  - Process multiple web URLs
+  - Returns extracted content summary
 
 ### Chat Interface
-- Real-time status updates
-- Markdown support
-- Code syntax highlighting
-- Responsive design
-- Dark theme for reduced eye strain
+- `POST /chat`
+  - Process chat messages with context
+  - Returns AI-generated responses
 
-## Contributing
+## 🌟 Advantages
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+1. **Efficient Document Processing**
+   - Fast semantic search using vector embeddings
+   - Intelligent chunking for better context preservation
+   - Multi-document context management
 
-## License
+2. **Flexible Architecture**
+   - Modular design for easy extensions
+   - Scalable cloud deployment
+   - Stateless architecture for reliability
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+3. **Enhanced User Experience**
+   - Real-time processing feedback
+   - Intuitive interface
+   - Context-aware responses
 
-## Disclaimer
+4. **Security & Privacy**
+   - Environment-based configuration
+   - No permanent storage of documents
+   - Secure cloud deployment
 
-This is a demonstration of AI capabilities and should not be used as an official or authoritative source. Always verify important information independently.
+## 🛠️ Configuration
 
-## Acknowledgments
+### Environment Variables
+| Variable | Description | Required |
+|----------|-------------|----------|
+| MISTRAL_API_KEY | Mistral AI API key | Yes |
+| TEXT_EMBEDDING | Embedding API endpoint | Yes |
+| TEXT_EMBEDDING_MODEL | Model for embeddings | Yes |
+| PORT | Server port (default: 8000) | No |
 
-- Built with [Mistral AI](https://mistral.ai)
-- Powered by [LangChain](https://www.langchain.com)
-- Uses [FastAPI](https://fastapi.tiangolo.com)
+## 📈 Performance Optimization
+
+- Uses InMemoryVectorStore for fast document retrieval
+- Efficient document chunking for better context
+- Optimized web content extraction
+- Containerized deployment for consistent performance
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to your branch
+5. Create a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- [Mistral AI](https://mistral.ai) - LLM provider
+- [LangChain](https://www.langchain.com) - LLM framework
+- [FastAPI](https://fastapi.tiangolo.com) - Web framework
+- [Azure](https://azure.microsoft.com) - Cloud platform
+
+## 📞 Support
+
+- Report issues on [GitHub Issues](https://github.com/wsmaisys/DocuDroid/issues)
+- For major changes, please open an issue first to discuss what you would like to change
+
+---
+
+Built with ❤️ by [wsmaisys](https://github.com/wsmaisys)
