@@ -1,0 +1,20 @@
+steps:
+  # Step 1: Build Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [ 'build', '-t', 'docker.io/wsmaisys/docudroid:latest', '.' ]
+
+  # Step 2: Push to Docker Hub
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [ 'push', 'docker.io/wsmaisys/docudroid:latest' ]
+
+  # Step 3: Deploy to Cloud Run from Docker Hub
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - docudroid
+      - --image=docker.io/wsmaisys/docudroid:latest
+      - --region=us-central1
+      - --platform=managed
+      - --allow-unauthenticated
