@@ -133,29 +133,22 @@
 
         .modal-body {
             margin-bottom: 2rem;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
+            padding: 1.5rem;
+            background: var(--surface-raised);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
         }
 
         .feature-card {
-            background: var(--surface-raised);
-            padding: 1.5rem;
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--border);
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 0.5rem 0;
         }
 
-        .feature-card:hover {
-            background: var(--surface-hover);
-            border-color: var(--border-focus);
-            transform: translateY(-2px);
-        }
+
 
         .feature-card h3 {
             color: var(--primary);
-            margin-bottom: 1rem;
-            font-size: 1.25rem;
+            margin-bottom: 0.25rem;
+            font-size: 1rem;
             font-weight: 600;
             display: flex;
             align-items: center;
@@ -167,11 +160,11 @@
         }
 
         .feature-card li {
-            margin: 0.75rem 0;
+            margin: 0.25rem 0;
             display: flex;
             align-items: flex-start;
-            gap: 0.75rem;
-            font-size: 0.95rem;
+            gap: 0.5rem;
+            font-size: 0.9rem;
             color: var(--text-secondary);
         }
 
@@ -807,34 +800,25 @@
                 <div class="feature-card">
                     <h3>💬 General Chat</h3>
                     <ul>
-                        <li>Get instant answers on any topic</li>
-                        <li>Natural conversation interface</li>
-                        <li>Context-aware responses</li>
-                        <li>Multi-language support</li>
+                        <li>Get instant answers on any topic with natural conversation</li>
                     </ul>
                 </div>
                 <div class="feature-card">
                     <h3>📄 PDF Analysis</h3>
                     <ul>
-                        <li>Upload and analyze PDF documents</li>
-                        <li>Extract key insights and summaries</li>
-                        <li>Ask specific questions about content</li>
-                        <li>Support for complex documents</li>
+                        <li>Extract insights and summaries from PDF documents</li>
                     </ul>
                 </div>
                 <div class="feature-card">
                     <h3>🌐 Web Research</h3>
                     <ul>
-                        <li>Extract knowledge from web pages</li>
-                        <li>Analyze multiple URLs simultaneously</li>
-                        <li>Real-time content processing</li>
-                        <li>Cross-reference information</li>
+                        <li>Analyze and extract knowledge from web pages</li>
                     </ul>
                 </div>
             </div>
             <div class="modal-footer">
                 <div class="modal-disclaimer">
-                    ⚠️ Demo Environment: This is a demonstration version. Please verify all information independently and do not use for official purposes.
+                    ⚠️ Demo Environment: This is a demo version. Please verify all information and do not use for official purposes.
                 </div>
                 <button class="modal-close" id="modalCloseBtn">Get Started</button>
             </div>

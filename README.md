@@ -1,12 +1,12 @@
 # DocuDroid
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Deployment Status](https://img.shields.io/badge/deployment-active-success)](https://docudroid.lemonbay-750e7928.centralindia.azurecontainerapps.io/)
+[![Deployment Status](https://img.shields.io/badge/deployment-active-success)](https://docudroid-114168985695.us-central1.run.app)
 [![Python Version](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 
 DocuDroid is an intelligent document analysis and chat platform that harnesses the power of Large Language Models (LLMs) through Mistral AI. It provides a modern, interactive interface for document analysis, web content processing, and natural language interactions.
 
-🌐 **[Try DocuDroid Live](https://docudroid.lemonbay-750e7928.centralindia.azurecontainerapps.io/)**
+🌐 **[Try DocuDroid Live](https://docudroid-114168985695.us-central1.run.app)**
 
 ![DocuDroid Interface](static/DocuDroid%20Image.png)
 
@@ -18,7 +18,7 @@ DocuDroid is an intelligent document analysis and chat platform that harnesses t
 - 💬 **Context-Aware**: Maintains conversation context for more relevant responses
 - 🚀 **Real-time Processing**: Live status updates and instant responses
 - � **Modern UI**: Clean, responsive interface with dark theme
-- ☁️ **Cloud Deployment**: Hosted on Azure Container Apps for scalability
+- ☁️ **Cloud Deployment**: Hosted on Google Cloud Run for scalability
 
 ## 💡 Use Cases
 
@@ -99,8 +99,8 @@ DocuDroid/
   - Responsive design principles
 
 - **Deployment**:
-  - Azure Container Apps
-  - GitHub Actions for CI/CD
+  - Google Cloud Run
+  - Cloud Build for CI/CD
   - Docker containerization
 
 ## 🔧 API Endpoints
@@ -176,7 +176,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [Mistral AI](https://mistral.ai) - LLM provider
 - [LangChain](https://www.langchain.com) - LLM framework
 - [FastAPI](https://fastapi.tiangolo.com) - Web framework
-- [Azure](https://azure.microsoft.com) - Cloud platform
+- [Google Cloud](https://cloud.google.com) - Cloud platform
 
 ## 📞 Support
 
