@@ -1,8 +1,8 @@
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_core.vectorstores import InMemoryVectorStore
 from langchain_mistralai import MistralAIEmbeddings
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.tools import StructuredTool
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_core.tools import StructuredTool
 from pydantic import BaseModel, Field
 from dotenv import load_dotenv
 import os

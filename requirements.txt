@@ -5,6 +5,7 @@ langchain
 langchain-core
 langchain-community
 langchain-mistralai
+langchain-text-splitters
 python-dotenv
 beautifulsoup4
 requests
