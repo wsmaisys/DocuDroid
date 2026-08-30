@@ -1,591 +1,431 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="DocuDroid - AI-powered document analysis and web content exploration tool using LLM technology. Features PDF analysis, web content processing, and intelligent chat capabilities.">
-    <meta name="keywords" content="DocuDroid, AI document analysis, PDF analysis, web content analysis, LLM, Mistral, LangChain, RAG system, document assistant">
-    <meta name="author" content="DocuDroid">
-    <meta name="robots" content="index, follow">
-    
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://docudroid.ai/appinfo.html">
-    <meta property="og:title" content="DocuDroid - Intelligent Document Assistant">
-    <meta property="og:description" content="AI-powered document analysis and web content exploration tool using LLM technology. Process PDFs, analyze web content, and chat intelligently.">
-    <meta property="og:image" content="/static/DocuDroid Image.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+  <title>DocuDroid - Architecture & System Specifications</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+  
+  <!-- 3D Glassmorphism Core CSS -->
+  <link rel="stylesheet" href="/static/css/glassmorphism.css">
 
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://docudroid.ai/appinfo.html">
-    <meta property="twitter:title" content="DocuDroid - Intelligent Document Assistant">
-    <meta property="twitter:description" content="AI-powered document analysis and web content exploration tool using LLM technology. Process PDFs, analyze web content, and chat intelligently.">
-    <meta property="twitter:image" content="/static/DocuDroid Image.png">
-    
-    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
-    <title>DocuDroid - Intelligent Document Assistant | App Information</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-tomorrow.min.css" rel="stylesheet" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-json.min.js"></script>
-    <style>
-        :root {
-            --primary: #0066ff;
-            --primary-dark: #0052cc;
-            --primary-light: #4d8aff;
-            --secondary: #6366f1;
-            --secondary-dark: #4f46e5;
-            --background: #0f1419;
-            --surface: #1a1f2e;
-            --surface-raised: #242b3d;
-            --surface-hover: #2d3648;
-            --text: #f8fafc;
-            --text-secondary: #94a3b8;
-            --text-muted: #64748b;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --error: #ef4444;
-            --border: rgba(255, 255, 255, 0.08);
-            --border-focus: rgba(99, 102, 241, 0.5);
-            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-            --radius-sm: 0.375rem;
-            --radius: 0.5rem;
-            --radius-lg: 0.75rem;
-            --radius-xl: 1rem;
-            --content-max-width: 900px;
-        }
+  <style>
+    body {
+      overflow-y: auto !important;
+    }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
-            scroll-behavior: smooth;
-        }
+    .appinfo-container {
+      max-width: 1040px;
+      margin: 2.5rem auto 5rem;
+      padding: 0 1.5rem;
+      position: relative;
+      z-index: 10;
+    }
 
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--background);
-            background-image: 
-                radial-gradient(circle at 25% 25%, rgba(99, 102, 241, 0.05) 0%, transparent 50%),
-                radial-gradient(circle at 75% 75%, rgba(0, 102, 255, 0.03) 0%, transparent 50%);
-            color: var(--text);
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            line-height: 1.6;
-            font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
+    .hero-banner-card {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%), rgba(14, 21, 37, 0.7);
+      backdrop-filter: blur(24px) saturate(200%);
+      -webkit-backdrop-filter: blur(24px) saturate(200%);
+      border: 1px solid var(--glass-border-light);
+      border-radius: var(--radius-xl);
+      padding: 3rem 2.5rem;
+      text-align: center;
+      margin-bottom: 2.5rem;
+      box-shadow: var(--shadow-xl), var(--glass-inner-card);
+    }
 
-        .container {
-            max-width: var(--content-max-width);
-            margin: 2rem auto;
-            padding: 0 2rem;
-            width: 100%;
-        }
+    .hero-banner-card h1 {
+      font-family: var(--font-display);
+      font-size: 2.6rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, #ffffff 30%, #38bdf8 70%, #a855f7 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 0.75rem;
+    }
 
-        .header {
-            background: var(--surface);
-            padding: 1rem 2rem;
-            box-shadow: var(--shadow);
-            z-index: 100;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border);
-            backdrop-filter: blur(8px);
-        }
+    .hero-banner-card p {
+      color: var(--text-secondary);
+      font-size: 1.05rem;
+      max-width: 680px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
 
-        .header-brand {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
+    .info-section {
+      margin-bottom: 3rem;
+    }
 
-        .header-subtitle {
-            color: var(--text-muted);
-            font-size: 0.75rem;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-left: 0.5rem;
-        }
+    .info-section h2 {
+      font-family: var(--font-display);
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+    }
 
-        .header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, var(--primary), transparent);
-        }
+    .arch-diagram-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin: 1.5rem 0;
+      position: relative;
+    }
 
-        .header h1 {
-            color: var(--text);
-            margin-bottom: 1rem;
-            font-size: 2.5rem;
-            background: linear-gradient(120deg, var(--primary), var(--secondary));
-            background-clip: text;
-            -webkit-background-clip: text;
-            color: transparent;
-        }
+    .arch-step-card {
+      background: rgba(18, 26, 44, 0.6);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border-subtle);
+      border-radius: var(--radius-md);
+      padding: 1.5rem 1.15rem;
+      text-align: center;
+      position: relative;
+      transition: all 0.3s ease;
+    }
 
-        .content-header {
-            background: var(--surface);
-            padding: 2rem;
-            margin-bottom: 2rem;
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--border);
-            box-shadow: var(--shadow);
-        }
+    .arch-step-card:hover {
+      border-color: var(--neon-cyan);
+      transform: translateY(-4px);
+      box-shadow: 0 0 20px rgba(0, 242, 254, 0.15);
+    }
 
-        .content-header h1 {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            background-clip: text;
-            -webkit-background-clip: text;
-            color: transparent;
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
+    .arch-step-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #00f2fe, #6366f1);
+      color: #030816;
+      font-weight: 800;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 0.75rem;
+    }
 
-        .content-header p {
-            color: var(--text-secondary);
-            font-size: 1.1rem;
-        }
+    .arch-step-title {
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 0.35rem;
+    }
 
-        .section {
-            background: var(--surface);
-            padding: 2rem;
-            margin-bottom: 2rem;
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--border);
-            box-shadow: var(--shadow);
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+    .arch-step-desc {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
 
-        .section:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-        }
+    .modes-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+    }
 
-        .overview-container {
-            display: flex;
-            flex-direction: column;
-            gap: 2rem;
-        }
+    .mode-spec-card {
+      background: rgba(18, 26, 44, 0.6);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 1.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      transition: all 0.3s ease;
+    }
 
-        .overview-image {
-            position: relative;
-            border-radius: var(--radius-lg);
-            overflow: hidden;
-            box-shadow: var(--shadow-lg);
-            border: 1px solid var(--border);
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            width: 100%;
-            max-width: 800px;
-            margin: 0 auto;
-        }
+    .mode-spec-card:hover {
+      border-color: var(--glass-border-light);
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg), 0 0 25px rgba(99, 102, 241, 0.12);
+    }
 
-        .overview-image:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.3);
-        }
+    .mode-spec-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
 
-        .overview-image img {
-            display: block;
-            width: 100%;
-            height: auto;
-            object-fit: contain;
-            max-height: 500px;
-            background: var(--surface-raised);
-        }
+    .mode-icon-circle {
+      width: 42px;
+      height: 42px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
 
-        .overview-content {
-            margin-top: 1rem;
-        }
+    .mode-spec-title {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #ffffff;
+    }
 
-        @media (max-width: 768px) {
-            .overview-container {
-                gap: 1.5rem;
-            }
-        }
+    .tech-pill-row {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
 
-        h2 {
-            color: var(--text);
-            margin-bottom: 1.5rem;
-            padding-bottom: 0.75rem;
-            border-bottom: 1px solid var(--border);
-            font-size: 1.8rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
+    .tech-pill {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.15rem 0.5rem;
+      border-radius: var(--radius-xs);
+      background: rgba(0, 242, 254, 0.1);
+      border: 1px solid rgba(0, 242, 254, 0.25);
+      color: var(--neon-cyan);
+    }
 
-        h3 {
-            color: var(--text);
-            margin: 1.5rem 0 1rem 0;
-            font-size: 1.3rem;
-        }
+    .spec-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+    }
 
-        h4 {
-            color: var(--primary);
-            margin: 1rem 0 0.5rem 0;
-            font-size: 1.1rem;
-        }
+    .spec-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.45rem;
+    }
 
-        .header-link {
-            color: var(--text-secondary);
-            text-decoration: none;
-            padding: 0.5rem 1rem;
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            font-size: 0.875rem;
-            font-weight: 500;
-            background: var(--surface-raised);
-        }
+    .spec-list li::before {
+      content: "▹";
+      color: var(--neon-cyan);
+      font-weight: bold;
+    }
 
-        .header-link:hover {
-            background: var(--surface-hover);
-            border-color: var(--border-focus);
-            color: var(--text);
-            transform: translateY(-1px);
-        }
+    .overview-image-card {
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      border: 1px solid var(--glass-border-light);
+      box-shadow: var(--shadow-xl), 0 0 35px rgba(0, 242, 254, 0.1);
+      margin: 1.5rem 0;
+      background: #090e18;
+    }
 
-        .back-link::before {
-            content: '←';
-            margin-right: 0.5rem;
-            font-size: 1.2em;
-        }
+    .overview-image-card img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
 
-        ul {
-            list-style: none;
-            padding-left: 1.5rem;
-            margin: 1rem 0;
-        }
-
-        li {
-            margin: 0.5rem 0;
-            position: relative;
-        }
-
-        li::before {
-            content: '•';
-            color: var(--primary);
-            position: absolute;
-            left: -1.5rem;
-            font-size: 1.2em;
-        }
-
-        .feature-card {
-            background: var(--surface-raised);
-            padding: 1.5rem;
-            border-radius: var(--radius-lg);
-            margin: 1.5rem 0;
-            border: 1px solid var(--border);
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .feature-card:hover {
-            background: var(--surface-hover);
-            border-color: var(--border-focus);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow);
-        }
-
-        .feature-card h4 {
-            color: var(--primary);
-            margin-bottom: 0.5rem;
-        }
-
-        .tech-tag {
-            display: inline-block;
-            background: rgba(99, 102, 241, 0.1);
-            color: var(--primary-light);
-            padding: 0.25rem 0.75rem;
-            border-radius: var(--radius);
-            font-size: 0.875rem;
-            margin: 0.25rem;
-            border: 1px solid var(--border-focus);
-        }
-
-        .note {
-            background: rgba(245, 158, 11, 0.1);
-            padding: 1rem 1.25rem;
-            border-radius: var(--radius);
-            border: 1px solid rgba(245, 158, 11, 0.2);
-            margin: 1.25rem 0;
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-        }
-
-        code {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 0.2rem 0.4rem;
-            border-radius: 0.3rem;
-            font-family: 'Monaco', 'Consolas', monospace;
-            font-size: 0.9em;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 1rem;
-                margin: 1rem auto;
-            }
-
-            .header {
-                padding: 1rem;
-                flex-direction: column;
-                gap: 1rem;
-                text-align: center;
-            }
-
-            .header-brand {
-                justify-content: center;
-            }
-
-            .header-links {
-                justify-content: center;
-                flex-wrap: wrap;
-            }
-
-            .section {
-                padding: 1.5rem;
-            }
-
-            .content-header h1 {
-                font-size: 1.75rem;
-            }
-
-            .overview-image {
-                max-width: 100%;
-            }
-        }
-
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: var(--surface);
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--surface-raised);
-            border-radius: 4px;
-            border: 2px solid var(--surface);
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--primary);
-        }
-
-        /* Header navigation */
-        .header-links {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-        }
-        
-
-    </style>
+    @media (max-width: 860px) {
+      .arch-diagram-grid, .modes-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="header">
-        <div class="header-brand">
-            <h1>DocuDroid</h1>
-            <span class="header-subtitle">AI Assistant</span>
+
+  <!-- Ambient 3D Background -->
+  <div class="ambient-background">
+    <div class="ambient-grid"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-3"></div>
+  </div>
+  <div class="mouse-glow"></div>
+
+  <!-- Header -->
+  <header class="app-header">
+    <div class="brand-wrapper">
+      <div class="brand-icon-3d">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2 2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/>
+          <rect x="4" y="8" width="16" height="12" rx="3"/>
+          <circle cx="9" cy="13" r="1.5" fill="currentColor"/>
+          <circle cx="15" cy="13" r="1.5" fill="currentColor"/>
+          <path d="M10 17h4"/>
+        </svg>
+      </div>
+      <div class="brand-info">
+        <div class="brand-title">
+          DocuDroid
+          <span class="brand-badge">ARCHITECTURE</span>
         </div>
-        <div class="header-links">
-            <a href="/" class="header-link">Home</a>
-            <a href="/api.html" class="header-link">API Docs</a>
-        </div>
+        <span class="brand-subtitle">RAG Pipeline & Subsystem Specifications</span>
+      </div>
     </div>
 
-    <div class="container">
-        <div class="content-header">
-            <h1>DocuDroid App Information</h1>
-            <p>Comprehensive guide to DocuDroid's features, capabilities, and technical implementation</p>
-        </div>
-
-        <div class="section">
-            <h2>🚀 Overview</h2>
-            <div class="overview-container">
-                <div class="overview-image">
-                    <img src="/static/DocuDroid Image.png" alt="DocuDroid Interface" width="100%" loading="lazy">
-                </div>
-                <div class="overview-content">
-                    <p>DocuDroid is an AI-powered application that enables intelligent document analysis and web content exploration through Large Language Model (LLM) technology. Built as a Real-Time Retrieval-Augmented Generation (RAG) system, the app provides three distinct modes for interacting with different content types, showcasing the transformative potential of AI in information retrieval and analysis.</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="section">
-            <h2>💡 Core Features & Operational Modes</h2>
-
-            <div class="feature-card">
-                <h3>1. General Mode - AI Chat Assistant</h3>
-                <div class="tech-tag">Mistral LLM</div>
-                <div class="tech-tag">Prompt Engineering</div>
-                
-                <h4>How to Use</h4>
-                <ul>
-                    <li>Select "General Chat" from the mode selector</li>
-                    <li>Type your questions or prompts directly into the chat interface</li>
-                    <li>Engage in natural conversation on any topic</li>
-                </ul>
-
-                <h4>Key Capabilities</h4>
-                <ul>
-                    <li>Handles broad knowledge queries and conceptual discussions</li>
-                    <li>Context-aware conversations with session memory</li>
-                    <li>Knowledge base current through October 2023</li>
-                    <li>Maintains conversation history until app restart, refresh, or closure</li>
-                </ul>
-            </div>
-
-            <div class="feature-card">
-                <h3>2. PDF Mode - Document Analysis</h3>
-                <div class="tech-tag">LangChain PDFLoader</div>
-                <div class="tech-tag">Vector Search</div>
-                <div class="tech-tag">Recursive Text Splitter</div>
-
-                <h4>How to Use</h4>
-                <ul>
-                    <li>Select "PDF Mode" from the interface</li>
-                    <li>Upload your PDF file using the file selector</li>
-                    <li>Wait for document processing completion</li>
-                    <li>Ask specific questions about the document content</li>
-                </ul>
-
-                <h4>Technical Implementation</h4>
-                <ul>
-                    <li>Text Chunking: 1,000 character segments with 200-character overlap</li>
-                    <li>Embedding: Mistral Embed Model for semantic vector representation</li>
-                    <li>Storage: In-memory vector store for fast retrieval</li>
-                    <li>Search: Cosine similarity-based semantic search</li>
-                    <li>Retrieval: Top 2 most relevant chunks (k=2) fed to LLM</li>
-                </ul>
-
-                <div class="note">
-                    <strong>Note:</strong> Works with text-based PDFs only; image-converted PDF files are not supported
-                </div>
-            </div>
-
-            <div class="feature-card">
-                <h3>3. Web Mode - Webpage Content Analysis</h3>
-                <div class="tech-tag">LangChain WebLoader</div>
-                <div class="tech-tag">Vector Search</div>
-                <div class="tech-tag">Content Extraction</div>
-
-                <h4>How to Use</h4>
-                <ul>
-                    <li>Select "Web Mode" from the interface</li>
-                    <li>Paste the target webpage URL into the input field</li>
-                    <li>Wait for content scraping and processing</li>
-                    <li>Query the webpage content through natural language</li>
-                </ul>
-
-                <h4>Technical Implementation</h4>
-                <ul>
-                    <li>Content Extraction: Automated web scraping with text extraction</li>
-                    <li>Text Chunking: 1,000 character segments with 200-character overlap</li>
-                    <li>Embedding: Mistral Embed Model for semantic vector representation</li>
-                    <li>Storage: In-memory vector store for rapid access</li>
-                    <li>Search: Cosine similarity-based semantic search</li>
-                    <li>Retrieval: Top 2 most relevant chunks (k=2) processed by LLM</li>
-                </ul>
-
-                <div class="note">
-                    <strong>Note:</strong> May experience difficulties with JavaScript-heavy websites or dynamic content
-                </div>
-            </div>
-        </div>
-
-        <div class="section">
-            <h2>🔧 Technical Architecture</h2>
-
-            <h3>RAG Implementation</h3>
-            <p>DocuDroid operates as a Real-Time RAG system, combining:</p>
-            <ul>
-                <li>Retrieval Component: Semantic search through vector embeddings</li>
-                <li>Augmentation Component: Context injection from relevant document chunks</li>
-                <li>Generation Component: LLM response synthesis based on retrieved context</li>
-            </ul>
-
-            <h3>Memory Management</h3>
-            <ul>
-                <li>Session-based context retention for continuous conversations</li>
-                <li>In-memory vector storage for optimal performance</li>
-                <li>Automatic cleanup on app restart or closure</li>
-            </ul>
-
-            <h3>Embedding Strategy</h3>
-            <ul>
-                <li>Utilizes Mistral Embed Model for high-quality semantic representations</li>
-                <li>Optimized chunk sizing balances context preservation with search precision</li>
-                <li>Overlap strategy ensures important information isn't lost at chunk boundaries</li>
-            </ul>
-        </div>
-
-        <div class="section">
-            <h2>💫 Effective Usage Tips</h2>
-
-            <div class="feature-card">
-                <h4>For PDF Analysis</h4>
-                <ul>
-                    <li>Ask specific questions rather than broad summaries for better results</li>
-                    <li>Reference page numbers or sections when seeking targeted information</li>
-                    <li>Follow up with clarifying questions to dive deeper into topics</li>
-                </ul>
-            </div>
-
-            <div class="feature-card">
-                <h4>For Web Content</h4>
-                <ul>
-                    <li>Ensure URLs are accessible and not behind paywalls</li>
-                    <li>Verify the webpage has loaded properly before processing</li>
-                    <li>Consider the website's structure when formulating queries</li>
-                </ul>
-            </div>
-
-            <div class="feature-card">
-                <h4>For General Chat</h4>
-                <ul>
-                    <li>Build on previous questions within the same session for context-aware responses</li>
-                    <li>Use clear, specific language for more accurate results</li>
-                    <li>Take advantage of the June 2025 knowledge cutoff for recent information</li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="section">
-            <h2>⚡ System Requirements & Performance</h2>
-            <ul>
-                <li>Requires stable internet connection for LLM processing</li>
-                <li>Processing time varies based on document size and complexity</li>
-                <li>Real-time response generation with minimal latency for most queries</li>
-            </ul>
-        </div>
-
-        <div class="section">
-            <p class="note" style="text-align: center; font-style: italic; border-left: none;">
-                DocuDroid represents the next generation of document interaction, transforming static content into dynamic, queryable knowledge bases through advanced AI technology.
-            </p>
-        </div>
+    <div class="header-actions">
+      <a href="/" class="glass-action-btn" data-sound="click">
+        <span>← App Console</span>
+      </a>
+      <a href="/api.html" class="glass-action-btn" data-sound="click">
+        <span>API Docs</span>
+      </a>
     </div>
+  </header>
+
+  <!-- Main Container -->
+  <div class="appinfo-container">
+
+    <!-- Hero Card -->
+    <div class="hero-banner-card tilt-card" data-tilt-max="4">
+      <h1>Autonomous Document Intelligence</h1>
+      <p>DocuDroid is a real-time Retrieval-Augmented Generation (RAG) platform bridging Mistral AI Large Language Models with vector stores and semantic document ingestion.</p>
+    </div>
+
+    <!-- UI Overview -->
+    <section class="info-section">
+      <h2>🖥️ Unified Workspace Overview</h2>
+      <div class="overview-image-card tilt-card" data-tilt-max="4">
+        <img src="/static/DocuDroid Image.png" alt="DocuDroid Architecture" loading="lazy" />
+      </div>
+    </section>
+
+    <!-- Architecture Pipeline -->
+    <section class="info-section">
+      <h2>⚡ RAG Data Flow Pipeline</h2>
+      <p style="color: var(--text-secondary);">How DocuDroid ingests unstructured media, vectorizes token sequences, and performs low-latency neural synthesis:</p>
+
+      <div class="arch-diagram-grid">
+        <div class="arch-step-card tilt-card" data-tilt-max="6">
+          <div class="arch-step-num">1</div>
+          <div class="arch-step-title">Ingestion & Extraction</div>
+          <div class="arch-step-desc">PyPDF / LangChain WebLoaders parse raw documents and strip boilerplate HTML/formatting.</div>
+        </div>
+
+        <div class="arch-step-card tilt-card" data-tilt-max="6">
+          <div class="arch-step-num">2</div>
+          <div class="arch-step-title">Recursive Chunking</div>
+          <div class="arch-step-desc">1,000-character windows with 200-character overlap maintain semantic coherence across chunk bounds.</div>
+        </div>
+
+        <div class="arch-step-card tilt-card" data-tilt-max="6">
+          <div class="arch-step-num">3</div>
+          <div class="arch-step-title">Dense Embeddings</div>
+          <div class="arch-step-desc">Mistral Embeddings model projects chunks into high-dimensional semantic vector spaces.</div>
+        </div>
+
+        <div class="arch-step-card tilt-card" data-tilt-max="6">
+          <div class="arch-step-num">4</div>
+          <div class="arch-step-title">Contextual Synthesis</div>
+          <div class="arch-step-desc">Cosine similarity top-k chunks are injected into Mistral LLM context for hallucination-free generation.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Three Subsystems -->
+    <section class="info-section">
+      <h2>🧩 Multi-Engine Operational Modes</h2>
+      <div class="modes-grid">
+        
+        <!-- General Mode -->
+        <div class="mode-spec-card tilt-card" data-tilt-max="6">
+          <div class="mode-spec-header">
+            <div class="mode-icon-circle" style="background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3);">💬</div>
+            <div>
+              <div class="mode-spec-title">General Reasoning</div>
+              <div style="font-size: 0.72rem; color: var(--text-muted);">Zero-shot Prompt Engine</div>
+            </div>
+          </div>
+
+          <div class="tech-pill-row">
+            <span class="tech-pill">Mistral LLM</span>
+            <span class="tech-pill">Multi-Turn Memory</span>
+          </div>
+
+          <ul class="spec-list">
+            <li>Conversational reasoning and code generation without prior uploads.</li>
+            <li>Thread-isolated memory buffers for coherent context tracking.</li>
+            <li>High-throughput direct stream response generation.</li>
+          </ul>
+        </div>
+
+        <!-- PDF Mode -->
+        <div class="mode-spec-card tilt-card" data-tilt-max="6">
+          <div class="mode-spec-header">
+            <div class="mode-icon-circle" style="background: rgba(244, 63, 94, 0.15); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.3);">📄</div>
+            <div>
+              <div class="mode-spec-title">PDF Analytics</div>
+              <div style="font-size: 0.72rem; color: var(--text-muted);">Chroma Vector Store</div>
+            </div>
+          </div>
+
+          <div class="tech-pill-row">
+            <span class="tech-pill">LangChain PDF</span>
+            <span class="tech-pill">Background Tasks</span>
+          </div>
+
+          <ul class="spec-list">
+            <li>Asynchronous worker threads with live polling telemetry.</li>
+            <li>In-memory semantic vector indexing for instant retrieval.</li>
+            <li>Supports dense reports, technical manuals, and whitepapers.</li>
+          </ul>
+        </div>
+
+        <!-- Web Mode -->
+        <div class="mode-spec-card tilt-card" data-tilt-max="6">
+          <div class="mode-spec-header">
+            <div class="mode-icon-circle" style="background: rgba(0, 242, 254, 0.15); color: #38bdf8; border: 1px solid rgba(0, 242, 254, 0.3);">🌐</div>
+            <div>
+              <div class="mode-spec-title">Web Research</div>
+              <div style="font-size: 0.72rem; color: var(--text-muted);">Real-time Scraping</div>
+            </div>
+          </div>
+
+          <div class="tech-pill-row">
+            <span class="tech-pill">WebLoader</span>
+            <span class="tech-pill">DOM Sanitization</span>
+          </div>
+
+          <ul class="spec-list">
+            <li>Live HTTP/HTTPS URL scraping and boilerplate elimination.</li>
+            <li>Dynamic RAG vectorization of remote web documentation.</li>
+            <li>Cross-references online articles with custom query prompts.</li>
+          </ul>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Production Deployment Specs -->
+    <section class="info-section">
+      <h2>🐳 Container & Production Readiness</h2>
+      <div class="glass-card" style="padding: 2rem;">
+        <div style="display: flex; gap: 1rem; align-items: flex-start; margin-bottom: 1.25rem;">
+          <div style="width: 44px; height: 44px; border-radius: var(--radius-sm); background: rgba(0, 242, 254, 0.12); border: 1px solid rgba(0, 242, 254, 0.3); display: flex; align-items: center; justify-content: center; color: var(--neon-cyan); flex-shrink: 0;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+          </div>
+          <div>
+            <h3 style="font-family: var(--font-display); font-size: 1.2rem; color: #ffffff; margin-bottom: 0.35rem;">Zero-Build Docker Architecture</h3>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.6;">The entire frontend is engineered with pure hardware-accelerated CSS3 and modern native JavaScript. It requires zero Webpack/Vite build stages at runtime, allowing instant container startups and minimal Docker image footprints.</p>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <span class="tech-pill">FastAPI 0.100+</span>
+          <span class="tech-pill">Python 3.11-slim</span>
+          <span class="tech-pill">Uvicorn ASGI</span>
+          <span class="tech-pill">Non-Root User Security</span>
+          <span class="tech-pill">30s Healthcheck</span>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <script src="/static/js/glass-effects.js"></script>
 </body>
 </html>

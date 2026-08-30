@@ -1,1283 +1,1112 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
-    <title>DocuDroid - Intelligent Document Assistant</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
-    <!-- Add Marked.js for Markdown rendering -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <!-- Add Highlight.js for code syntax highlighting -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
-    <style>
-        :root {
-            --primary: #0066ff;
-            --primary-dark: #0052cc;
-            --primary-light: #4d8aff;
-            --secondary: #6366f1;
-            --secondary-dark: #4f46e5;
-            --background: #0f1419;
-            --surface: #1a1f2e;
-            --surface-raised: #242b3d;
-            --surface-hover: #2d3648;
-            --text: #f8fafc;
-            --text-secondary: #94a3b8;
-            --text-muted: #64748b;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --error: #ef4444;
-            --border: rgba(255, 255, 255, 0.08);
-            --border-focus: rgba(99, 102, 241, 0.5);
-            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-            --radius-sm: 0.375rem;
-            --radius: 0.5rem;
-            --radius-lg: 0.75rem;
-            --radius-xl: 1rem;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--background);
-            background-image: 
-                radial-gradient(circle at 25% 25%, rgba(99, 102, 241, 0.05) 0%, transparent 50%),
-                radial-gradient(circle at 75% 75%, rgba(0, 102, 255, 0.03) 0%, transparent 50%);
-            color: var(--text);
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            line-height: 1.6;
-            font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-
-        /* Modal Styles */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(15, 20, 25, 0.95);
-            backdrop-filter: blur(12px);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            opacity: 0;
-            transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .modal-content {
-            background: var(--surface);
-            padding: 2rem;
-            border-radius: var(--radius-xl);
-            max-width: 900px;
-            width: 95%;
-            max-height: 90vh;
-            overflow-y: auto;
-            color: var(--text);
-            box-shadow: var(--shadow-xl);
-            border: 1px solid var(--border);
-            position: relative;
-            transform: scale(0.95);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .modal-overlay[style*="opacity: 1"] .modal-content {
-            transform: scale(1);
-        }
-
-        .modal-content::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, var(--secondary), transparent);
-        }
-
-        .modal-header {
-            margin-bottom: 2rem;
-            text-align: center;
-        }
-
-        .modal-header h2 {
-            font-size: 2.25rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            background-clip: text;
-            -webkit-background-clip: text;
-            color: transparent;
-            margin-bottom: 0.5rem;
-        }
-
-        .modal-header p {
-            color: var(--text-secondary);
-            font-size: 1.1rem;
-        }
-
-        .modal-body {
-            margin-bottom: 2rem;
-            padding: 1.5rem;
-            background: var(--surface-raised);
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--border);
-        }
-
-        .feature-card {
-            padding: 0.5rem 0;
-        }
-
-
-
-        .feature-card h3 {
-            color: var(--primary);
-            margin-bottom: 0.25rem;
-            font-size: 1rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .feature-card ul {
-            list-style: none;
-        }
-
-        .feature-card li {
-            margin: 0.25rem 0;
-            display: flex;
-            align-items: flex-start;
-            gap: 0.5rem;
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-        }
-
-        .feature-card li::before {
-            content: "✓";
-            color: var(--success);
-            font-weight: 600;
-            flex-shrink: 0;
-        }
-
-        .modal-footer {
-            padding-top: 2rem;
-            border-top: 1px solid var(--border);
-            text-align: center;
-        }
-
-        .modal-disclaimer {
-            color: var(--text-muted);
-            font-size: 0.875rem;
-            margin-bottom: 1.5rem;
-            padding: 1rem;
-            background: rgba(245, 158, 11, 0.1);
-            border: 1px solid rgba(245, 158, 11, 0.2);
-            border-radius: var(--radius);
-        }
-
-        .modal-close {
-            background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
-            color: white;
-            border: none;
-            padding: 0.75rem 2rem;
-            border-radius: var(--radius);
-            font-weight: 600;
-            font-size: 0.95rem;
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: var(--shadow);
-        }
-
-        .modal-close:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        /* Header */
-        .header {
-            background: var(--surface);
-            padding: 1rem 2rem;
-            box-shadow: var(--shadow);
-            z-index: 100;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border);
-            backdrop-filter: blur(8px);
-        }
-
-        .header-brand {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .header h1 {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            background-clip: text;
-            -webkit-background-clip: text;
-            color: transparent;
-            font-size: 1.75rem;
-            font-weight: 700;
-            letter-spacing: -0.025em;
-        }
-
-        .header-subtitle {
-            color: var(--text-muted);
-            font-size: 0.75rem;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-left: 0.5rem;
-        }
-
-        .mode-selector {
-            display: flex;
-            gap: 0.25rem;
-            background: var(--surface-raised);
-            padding: 0.25rem;
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
-        }
-
-        .mode-button {
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-            background: transparent;
-            color: var(--text-secondary);
-            font-weight: 500;
-            font-size: 0.875rem;
-            white-space: nowrap;
-        }
-
-        .mode-button:hover {
-            color: var(--text);
-            background: var(--surface-hover);
-        }
-
-        .mode-button.active {
-            background: var(--secondary);
-            color: white;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .header-links {
-            display: flex;
-            gap: 0.75rem;
-        }
-
-        .header-link {
-            color: var(--text-secondary);
-            text-decoration: none;
-            padding: 0.5rem 1rem;
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            font-size: 0.875rem;
-            font-weight: 500;
-            background: var(--surface-raised);
-        }
-
-        .header-link:hover {
-            background: var(--surface-hover);
-            border-color: var(--border-focus);
-            color: var(--text);
-            transform: translateY(-1px);
-        }
-
-        /* Container */
-        .container {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            width: 320px;
-            background: var(--surface);
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .sidebar-content {
-            padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-            overflow-y: auto;
-        }
-
-        .upload-section {
-            background: var(--surface-raised);
-            border: 2px dashed var(--border);
-            border-radius: var(--radius-lg);
-            padding: 1.5rem;
-            text-align: center;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            cursor: pointer;
-        }
-
-        .upload-section:hover {
-            border-color: var(--border-focus);
-            background: var(--surface-hover);
-        }
-
-        .upload-section.drag-over {
-            border-color: var(--primary);
-            background: rgba(0, 102, 255, 0.05);
-        }
-
-        .upload-section h3 {
-            color: var(--text);
-            font-size: 1.125rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-
-        .upload-section p {
-            color: var(--text-secondary);
-            font-size: 0.875rem;
-            margin-bottom: 1rem;
-        }
-
-        .upload-button {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 0.625rem 1.25rem;
-            border-radius: var(--radius);
-            font-weight: 500;
-            font-size: 0.875rem;
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: var(--shadow-sm);
-        }
-
-        .upload-button:hover {
-            background: var(--primary-dark);
-            transform: translateY(-1px);
-            box-shadow: var(--shadow);
-        }
-
-        .url-input-section {
-            display: flex;
-            gap: 0.5rem;
-            margin-top: 1rem;
-        }
-
-        .url-input {
-            flex: 1;
-            padding: 0.75rem;
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            background: var(--surface);
-            color: var(--text);
-            font-size: 0.875rem;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .url-input:focus {
-            outline: none;
-            border-color: var(--border-focus);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-        }
-
-        .url-input::placeholder {
-            color: var(--text-muted);
-        }
-
-        .add-url-button {
-            padding: 0.75rem 1rem;
-            background: var(--secondary);
-            color: white;
-            border: none;
-            border-radius: var(--radius);
-            font-weight: 500;
-            font-size: 0.875rem;
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            white-space: nowrap;
-        }
-
-        .add-url-button:hover {
-            background: var(--secondary-dark);
-        }
-
-        /* File List */
-        .file-list {
-            background: var(--surface-raised);
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--border);
-            overflow: hidden;
-        }
-
-        .file-list-header {
-            padding: 1rem 1.25rem;
-            background: var(--surface-hover);
-            border-bottom: 1px solid var(--border);
-        }
-
-        .file-list-header h3 {
-            color: var(--text);
-            font-size: 1rem;
-            font-weight: 600;
-        }
-
-        .file-list-content {
-            max-height: 200px;
-            overflow-y: auto;
-        }
-
-        .file-item {
-            padding: 0.75rem 1.25rem;
-            border-bottom: 1px solid var(--border);
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .file-item:last-child {
-            border-bottom: none;
-        }
-
-        .file-item:hover {
-            background: var(--surface-hover);
-            color: var(--text);
-        }
-
-        .file-icon {
-            width: 16px;
-            height: 16px;
-            flex-shrink: 0;
-            opacity: 0.6;
-        }
-
-        .empty-state {
-            padding: 2rem 1.25rem;
-            text-align: center;
-            color: var(--text-muted);
-            font-size: 0.875rem;
-        }
-
-        /* Chat Container */
-        .chat-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: var(--background);
-            overflow: hidden;
-        }
-
-        .chat-messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1.25rem;
-        }
-
-        .chat-messages::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .chat-messages::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        .chat-messages::-webkit-scrollbar-thumb {
-            background: var(--border);
-            border-radius: 3px;
-        }
-
-        .chat-messages::-webkit-scrollbar-thumb:hover {
-            background: var(--text-muted);
-        }
-
-        .message {
-            max-width: 85%;
-            padding: 1rem 1.25rem;
-            border-radius: var(--radius-lg);
-            animation: messageSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            overflow-wrap: break-word;
-            word-wrap: break-word;
-            hyphens: auto;
-            position: relative;
-        }
-
-        .message code {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 0.25em 0.5em;
-            border-radius: var(--radius-sm);
-            font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
-            font-size: 0.875em;
-            color: var(--primary-light);
-        }
-
-        .message pre {
-            margin: 1rem 0;
-            overflow-x: auto;
-        }
-
-        .message pre code {
-            display: block;
-            background: var(--surface-raised);
-            padding: 1.25rem;
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
-            font-size: 0.875rem;
-            line-height: 1.5;
-        }
-
-        .message p {
-            margin: 0.75em 0;
-        }
-
-        .message p:first-child {
-            margin-top: 0;
-        }
-
-        .message p:last-child {
-            margin-bottom: 0;
-        }
-
-        .message ul, .message ol {
-            margin: 0.75em 0;
-            padding-left: 1.5em;
-        }
-
-        .message li {
-            margin: 0.25em 0;
-        }
-
-        .message a {
-            color: var(--primary-light);
-            text-decoration: none;
-            transition: color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .message a:hover {
-            text-decoration: underline;
-            color: var(--primary);
-        }
-
-        .user-message {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
-            margin-left: auto;
-            border-bottom-right-radius: var(--radius-sm);
-            box-shadow: var(--shadow);
-        }
-
-        .assistant-message {
-            background: var(--surface);
-            color: var(--text);
-            margin-right: auto;
-            border-bottom-left-radius: var(--radius-sm);
-            border: 1px solid var(--border);
-            box-shadow: var(--shadow-sm);
-        }
-
-        /* Input Container */
-        .input-container {
-            padding: 1.5rem;
-            background: var(--surface);
-            border-top: 1px solid var(--border);
-            display: flex;
-            gap: 1rem;
-            align-items: end;
-        }
-
-        .input-wrapper {
-            flex: 1;
-            position: relative;
-        }
-
-        .chat-input {
-            width: 100%;
-            padding: 0.875rem 1rem;
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            background: var(--surface-raised);
-            color: var(--text);
-            font-size: 0.95rem;
-            line-height: 1.5;
-            resize: none;
-            min-height: 44px;
-            max-height: 120px;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            font-family: inherit;
-        }
-
-        .chat-input:focus {
-            outline: none;
-            border-color: var(--border-focus);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-        }
-
-        .chat-input::placeholder {
-            color: var(--text-muted);
-        }
-
-        .send-button {
-            padding: 0.875rem 1.5rem;
-            background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
-            color: white;
-            border: none;
-            border-radius: var(--radius-lg);
-            font-weight: 600;
-            font-size: 0.875rem;
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: var(--shadow);
-            min-width: 80px;
-        }
-
-        .send-button:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .send-button:disabled {
-            background: var(--surface-raised);
-            color: var(--text-muted);
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        /* Status Messages */
-        .error {
-            color: var(--error);
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.2);
-            padding: 1rem 1.25rem;
-            border-radius: var(--radius);
-            margin: 0.5rem 0;
-            font-size: 0.875rem;
-        }
-
-        .status {
-            color: var(--success);
-            background: rgba(16, 185, 129, 0.1);
-            border: 1px solid rgba(16, 185, 129, 0.2);
-            padding: 1rem 1.25rem;
-            border-radius: var(--radius);
-            margin: 0.5rem 0;
-            font-size: 0.875rem;
-        }
-
-        /* Animations */
-        @keyframes messageSlideIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Responsive Design */
-        @media (max-width: 1024px) {
-            .sidebar {
-                width: 280px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .sidebar {
-                display: none;
-            }
-
-            .header {
-                flex-direction: column;
-                gap: 1rem;
-                padding: 1rem;
-            }
-
-            .header-brand {
-                width: 100%;
-                justify-content: center;
-            }
-
-            .mode-selector {
-                width: 100%;
-                justify-content: center;
-            }
-
-            .header-links {
-                width: 100%;
-                justify-content: center;
-            }
-
-            .message {
-                max-width: 95%;
-            }
-
-            .input-container {
-                padding: 1rem;
-            }
-
-            .modal-body {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .header h1 {
-                font-size: 1.5rem;
-            }
-
-            .mode-selector {
-                flex-direction: column;
-            }
-
-            .mode-button {
-                text-align: center;
-            }
-
-            .header-links {
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-        }
-
-        /* High contrast mode support */
-        @media (prefers-contrast: high) {
-            :root {
-                --border: rgba(255, 255, 255, 0.2);
-                --text-secondary: #cbd5e1;
-                --text-muted: #94a3b8;
-            }
-        }
-
-        /* Reduced motion support */
-        @media (prefers-reduced-motion: reduce) {
-            * {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+  <title>DocuDroid - Intelligent Document & Web Assistant</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+  
+  <!-- Markdown & Syntax Highlighting -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark-reasonable.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+
+  <!-- 3D Glassmorphism Design System -->
+  <link rel="stylesheet" href="/static/css/glassmorphism.css">
 </head>
 <body>
-    <!-- Welcome Modal -->
-    <div id="welcomeModal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>🤖 Welcome to DocuDroid</h2>
-                <p>Your intelligent document assistant</p>
-            </div>
-            <div class="modal-body">
-                <div class="feature-card">
-                    <h3>💬 General Chat</h3>
-                    <ul>
-                        <li>Get instant answers on any topic with natural conversation</li>
-                    </ul>
-                </div>
-                <div class="feature-card">
-                    <h3>📄 PDF Analysis</h3>
-                    <ul>
-                        <li>Extract insights and summaries from PDF documents</li>
-                    </ul>
-                </div>
-                <div class="feature-card">
-                    <h3>🌐 Web Research</h3>
-                    <ul>
-                        <li>Analyze and extract knowledge from web pages</li>
-                    </ul>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <div class="modal-disclaimer">
-                    ⚠️ Demo Environment: This is a demo version. Please verify all information and do not use for official purposes.
-                </div>
-                <button class="modal-close" id="modalCloseBtn">Get Started</button>
-            </div>
+
+  <!-- Ambient 3D Dynamic Background -->
+  <div class="ambient-background">
+    <div class="ambient-grid"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+  <div class="mouse-glow"></div>
+
+  <!-- App Header Navigation Bar -->
+  <header class="app-header">
+    <div class="brand-wrapper">
+      <button class="glass-icon-btn" id="sidebarToggleBtn" title="Toggle Knowledge Hub Sidebar" data-sound="click">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+      <div class="brand-icon-3d">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2 2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/>
+          <rect x="4" y="8" width="16" height="12" rx="3"/>
+          <circle cx="9" cy="13" r="1.5" fill="currentColor"/>
+          <circle cx="15" cy="13" r="1.5" fill="currentColor"/>
+          <path d="M10 17h4"/>
+        </svg>
+      </div>
+      <div class="brand-info">
+        <div class="brand-title">
+          DocuDroid
+          <span class="brand-badge">PRO v2.5</span>
         </div>
+        <span class="brand-subtitle">Autonomous RAG & Web Synthesis</span>
+      </div>
     </div>
 
-    <div class="header">
-        <div class="header-brand">
-            <h1>DocuDroid</h1>
-            <span class="header-subtitle">AI Assistant</span>
-        </div>
-        <div class="mode-selector">
-            <button class="mode-button active" data-mode="general">💬 General</button>
-            <button class="mode-button" data-mode="pdf">📄 PDF</button>
-            <button class="mode-button" data-mode="web">🌐 Web</button>
-        </div>
-        <div class="header-links">
-            <a href="/api.html" target="_blank" class="header-link">API Docs</a>
-            <a href="/appinfo.html" target="_blank" class="header-link">App Info</a>
-        </div>
+    <!-- 3D Mode Selector Dock -->
+    <div class="mode-selector-dock">
+      <button class="mode-btn active" data-mode="general" data-sound="switch">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+        General Chat
+      </button>
+      <button class="mode-btn" data-mode="pdf" data-sound="switch">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+          <polyline points="10 9 9 9 8 9"></polyline>
+        </svg>
+        PDF Analysis
+      </button>
+      <button class="mode-btn" data-mode="web" data-sound="switch">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="2" y1="12" x2="22" y2="12"></line>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+        </svg>
+        Web Research
+      </button>
     </div>
+
+    <!-- Header Actions -->
+    <div class="header-actions">
+      <button class="glass-action-btn" id="newChatBtn" title="Start Fresh Session" data-sound="click">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <path d="M12 5v14M5 12h14"></path>
+        </svg>
+        <span>New Chat</span>
+      </button>
+
+      <button class="glass-action-btn" id="exportChatBtn" title="Export Conversation" data-sound="click">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        <span>Export</span>
+      </button>
+
+      <button class="glass-icon-btn" id="soundToggleBtn" title="Toggle Sound FX" data-sound="click">
+        <svg id="soundIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+        </svg>
+      </button>
+
+      <button class="glass-icon-btn" id="helpModalBtn" title="Help & Shortcuts" data-sound="click">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+          <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+      </button>
+
+      <a href="/api.html" target="_blank" class="glass-action-btn" data-sound="click">
+        <span>API Docs</span>
+      </a>
+
+      <a href="/appinfo.html" target="_blank" class="glass-action-btn" data-sound="click">
+        <span>App Info</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Main Application Workspace -->
+  <div class="app-layout">
     
-    <div class="container">
-        <div class="sidebar">
-            <div class="sidebar-content">
-                <div class="upload-section" id="pdfUpload">
-                    <h3>📄 Upload PDF</h3>
-                    <p>Drop a PDF file here or click to browse</p>
-                    <input type="file" id="pdfInput" accept=".pdf" style="display: none">
-                    <button class="upload-button" onclick="document.getElementById('pdfInput').click()">
-                        Choose File
-                    </button>
-                </div>
-                
-                <div class="upload-section" id="webUpload">
-                    <h3>🌐 Add Web Content</h3>
-                    <p>Enter a URL to analyze web content</p>
-                    <div class="url-input-section">
-                        <input type="text" id="urlInput" class="url-input" placeholder="https://example.com">
-                        <button class="add-url-button" onclick="handleWebUpload()">Add</button>
-                    </div>
-                </div>
-                
-                <div class="file-list">
-                    <div class="file-list-header">
-                        <h3>📁 Uploaded Content</h3>
-                    </div>
-                    <div class="file-list-content" id="uploadedFiles">
-                        <div class="empty-state">No files uploaded yet</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="chat-container">
-            <div class="chat-messages" id="chatMessages"></div>
-            
-            <div class="input-container">
-                <div class="input-wrapper">
-                    <textarea id="userInput" 
-                             class="chat-input"
-                             placeholder="Type your message here..."
-                             rows="1"
-                             onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); }"></textarea>
-                </div>
-                <button onclick="sendMessage()" id="sendButton" class="send-button">Send</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        let currentThreadId = null;
-        let currentMode = 'general';
-        const uploadedFiles = new Set();
-
-        // Initialize chat session
-        async function initChat() {
-            try {
-                const response = await fetch('/session/init', {
-                    method: 'POST',
-                });
-                const data = await response.json();
-                currentThreadId = data.thread_id;
-                addMessage(data.message, 'assistant');
-                console.log('Chat initialized with thread ID:', currentThreadId);
-            } catch (error) {
-                console.error('Error initializing chat:', error);
-                showError('Failed to initialize chat session');
-            }
-        }
-
-        // Update UI based on mode
-        function updateUIForMode(mode) {
-            const pdfUpload = document.getElementById('pdfUpload');
-            const webUpload = document.getElementById('webUpload');
-            
-            // Hide all upload sections by default
-            pdfUpload.style.display = 'none';
-            webUpload.style.display = 'none';
-            
-            // Show relevant section based on mode
-            if (mode === 'pdf') {
-                pdfUpload.style.display = 'block';
-            } else if (mode === 'web') {
-                webUpload.style.display = 'block';
-            }
-        }
-
-        // Handle mode selection
-        document.querySelectorAll('.mode-button').forEach(button => {
-            button.addEventListener('click', () => {
-                document.querySelectorAll('.mode-button').forEach(b => b.classList.remove('active'));
-                button.classList.add('active');
-                currentMode = button.dataset.mode;
-                
-                // Update UI for the selected mode
-                updateUIForMode(currentMode);
-                
-                // Show appropriate message for mode change
-                const modeMessages = {
-                    'general': '💬 Switched to general chat mode. Ask me anything!',
-                    'pdf': '📄 Switched to PDF chat mode. Upload PDFs and ask questions about them.',
-                    'web': '🌐 Switched to web chat mode. Add URLs and ask questions about the web content.'
-                };
-                addMessage(modeMessages[currentMode], 'assistant');
-            });
-        });
-
-        // Send message
-        async function sendMessage() {
-            const input = document.getElementById('userInput');
-            const message = input.value.trim();
-            if (!message) return;
-
-            // Disable input
-            input.disabled = true;
-            document.getElementById('sendButton').disabled = true;
-
-            // Add user message
-            addMessage(message, 'user');
-            input.value = '';
-            input.style.height = 'auto';
-
-            try {
-                const response = await fetch('/chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        thread_id: currentThreadId,
-                        message: message,
-                        mode: currentMode
-                    })
-                });
-
-                const data = await response.json();
-                if (data.response) {
-                    addMessage(data.response, 'assistant');
-                }
-            } catch (error) {
-                console.error('Error sending message:', error);
-                showError('Failed to send message');
-            } finally {
-                input.disabled = false;
-                document.getElementById('sendButton').disabled = false;
-                input.focus();
-            }
-        }
-
-        // Poll for processing status
-        async function pollStatus(processId, messageId) {
-            try {
-                const response = await fetch(`/status/${processId}`);
-                if (response.ok) {
-                    const data = await response.json();
-                    updateMessage(messageId, data.message, 'assistant');
-                    
-                    if (data.status === 'processing') {
-                        // Continue polling if still processing
-                        setTimeout(() => pollStatus(processId, messageId), 1000);
-                    }
-                }
-            } catch (error) {
-                console.error('Error checking status:', error);
-            }
-        }
-
-        // Handle PDF upload
-        document.getElementById('pdfInput').addEventListener('change', async function(e) {
-            if (!e.target.files.length) return;
-            
-            const file = e.target.files[0];
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('thread_id', currentThreadId);
-
-            // Add processing message with unique ID
-            const messageId = 'pdf-' + Date.now();
-            addMessage(`📄 Processing PDF: ${file.name}...`, 'assistant', messageId);
-
-            try {
-                const response = await fetch('/upload/pdf', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    uploadedFiles.add(file.name);
-                    updateFileList();
-                    
-                    if (data.process_id) {
-                        // Start polling for status updates
-                        pollStatus(data.process_id, messageId);
-                    }
-                } else {
-                    throw new Error('Upload failed');
-                }
-            } catch (error) {
-                console.error('Error uploading PDF:', error);
-                updateMessage(messageId, `❌ ${error.message || 'Failed to upload PDF'}`, 'assistant');
-            }
-        });
-
-        // Handle web content upload
-        async function handleWebUpload() {
-            const urlInput = document.getElementById('urlInput');
-            const url = urlInput.value.trim();
-            
-            if (!url) return;
-
-            // Add processing message with unique ID
-            const processingId = 'web-' + Date.now();
-            addMessage(`🌐 Processing URL: ${url}...`, 'assistant', processingId);
-
-            try {
-                const response = await fetch('/upload/web', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        thread_id: currentThreadId,
-                        urls: [url]
-                    })
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    uploadedFiles.add(url);
-                    updateFileList();
-                    // Replace processing message with success message
-                    updateMessage(processingId, `🌐 ${data.message}`, 'assistant');
-                    urlInput.value = '';
-                } else {
-                    throw new Error('Failed to add web content');
-                }
-            } catch (error) {
-                console.error('Error adding web content:', error);
-                // Replace processing message with error
-                updateMessage(processingId, '❌ Failed to add web content', 'assistant');
-            }
-        }
-
-        // Update file list
-        function updateFileList() {
-            const fileList = document.getElementById('uploadedFiles');
-            
-            if (uploadedFiles.size === 0) {
-                fileList.innerHTML = '<div class="empty-state">No files uploaded yet</div>';
-                return;
-            }
-            
-            fileList.innerHTML = '';
-            uploadedFiles.forEach(file => {
-                const fileItem = document.createElement('div');
-                fileItem.className = 'file-item';
-                
-                const icon = document.createElement('div');
-                icon.className = 'file-icon';
-                icon.innerHTML = file.startsWith('http') ? '🌐' : '📄';
-                
-                const fileName = document.createElement('span');
-                fileName.textContent = file.length > 30 ? file.substring(0, 30) + '...' : file;
-                fileName.title = file;
-                
-                fileItem.appendChild(icon);
-                fileItem.appendChild(fileName);
-                fileList.appendChild(fileItem);
-            });
-        }
-
-        // Configure marked.js
-        marked.setOptions({
-            highlight: function(code, lang) {
-                if (lang && hljs.getLanguage(lang)) {
-                    return hljs.highlight(code, { language: lang }).value;
-                }
-                return hljs.highlightAuto(code).value;
-            },
-            breaks: true,
-            gfm: true
-        });
-
-        // Add message to chat
-        function addMessage(content, role, messageId = null) {
-            const chatMessages = document.getElementById('chatMessages');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${role}-message`;
-            if (messageId) {
-                messageDiv.id = messageId;
-            }
-            
-            // Render markdown for assistant messages only
-            if (role === 'assistant') {
-                messageDiv.innerHTML = marked.parse(content);
-            } else {
-                messageDiv.textContent = content;
-            }
-            
-            // Highlight any code blocks
-            messageDiv.querySelectorAll('pre code').forEach((block) => {
-                hljs.highlightElement(block);
-            });
-            
-            chatMessages.appendChild(messageDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-
-        // Update existing message
-        function updateMessage(messageId, content, role) {
-            const messageDiv = document.getElementById(messageId);
-            if (messageDiv) {
-                if (role === 'assistant') {
-                    messageDiv.innerHTML = marked.parse(content);
-                } else {
-                    messageDiv.textContent = content;
-                }
-                
-                messageDiv.querySelectorAll('pre code').forEach((block) => {
-                    hljs.highlightElement(block);
-                });
-            }
-        }
-
-        // Show error message
-        function showError(message) {
-            const error = document.createElement('div');
-            error.className = 'error';
-            error.textContent = message;
-            document.getElementById('chatMessages').appendChild(error);
-        }
-
-        // Auto-resize textarea
-        const textarea = document.getElementById('userInput');
-        textarea.addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = (this.scrollHeight) + 'px';
-        });
-
-        // Handle drag and drop for PDF upload
-        const pdfUploadSection = document.getElementById('pdfUpload');
-        const pdfInput = document.getElementById('pdfInput');
-
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            pdfUploadSection.addEventListener(eventName, preventDefaults, false);
-        });
-
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-
-        ['dragenter', 'dragover'].forEach(eventName => {
-            pdfUploadSection.addEventListener(eventName, highlight, false);
-        });
-
-        ['dragleave', 'drop'].forEach(eventName => {
-            pdfUploadSection.addEventListener(eventName, unhighlight, false);
-        });
-
-        function highlight(e) {
-            pdfUploadSection.classList.add('drag-over');
-        }
-
-        function unhighlight(e) {
-            pdfUploadSection.classList.remove('drag-over');
-        }
-
-        pdfUploadSection.addEventListener('drop', handleDrop, false);
-
-        function handleDrop(e) {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            
-            if (files.length > 0 && files[0].type === 'application/pdf') {
-                pdfInput.files = files;
-                pdfInput.dispatchEvent(new Event('change', { bubbles: true }));
-            }
-        }
-
-        // Modal handling
-        const modal = document.getElementById('welcomeModal');
-        const closeBtn = document.getElementById('modalCloseBtn');
+    <!-- Left Sidebar - Knowledge Hub -->
+    <aside class="app-sidebar" id="appSidebar">
+      <div class="sidebar-scrollable">
         
-        function showWelcomeModal() {
-            if (modal) {
-                modal.style.display = 'flex';
-                requestAnimationFrame(() => {
-                    modal.style.opacity = '1';
-                });
-            }
+        <!-- Live Session Status Card -->
+        <div class="session-status-card glass-card tilt-card" data-tilt-max="6">
+          <div class="session-live-pill">
+            <span class="pulse-dot"></span>
+            <span>Cluster Online</span>
+          </div>
+          <div class="thread-id-chip" id="threadIdBadge" title="Click to copy Session Thread ID" data-sound="click">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            <span id="threadIdText">init...</span>
+          </div>
+        </div>
+
+        <!-- PDF Upload Zone -->
+        <div id="pdfUploadSection" class="upload-mode-block">
+          <div class="sidebar-section-title">
+            <span>Document Ingestion</span>
+            <span class="sidebar-badge-count">PDF</span>
+          </div>
+          <div class="dropzone-3d tilt-card" id="pdfDropzone" data-tilt-max="8">
+            <input type="file" id="pdfFileInput" accept=".pdf" style="display: none;">
+            <div class="dropzone-icon-box">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <path d="M12 18v-6M9 15l3-3 3 3"/>
+              </svg>
+            </div>
+            <div class="dropzone-title">Upload PDF Document</div>
+            <p class="dropzone-desc">Drag & drop PDF here or click to browse (Max 50MB)</p>
+          </div>
+        </div>
+
+        <!-- Web Content Ingestion -->
+        <div id="webUploadSection" class="upload-mode-block" style="display: none;">
+          <div class="sidebar-section-title">
+            <span>Web Crawler</span>
+            <span class="sidebar-badge-count">HTTP/S</span>
+          </div>
+          <div class="glass-card web-ingest-card tilt-card" data-tilt-max="6">
+            <p style="font-size: 0.78rem; color: var(--text-secondary);">Enter URL to scrape, clean, and vectorize content for RAG reasoning:</p>
+            <div class="glass-input-group">
+              <input type="url" id="webUrlInput" class="glass-text-input" placeholder="https://example.com/docs" />
+              <button class="btn-accent" id="webUrlAddBtn" data-sound="click">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                <span>Add</span>
+              </button>
+            </div>
+            <!-- Preset Fast Links -->
+            <div style="display: flex; gap: 0.35rem; flex-wrap: wrap;">
+              <button class="tool-chip" onclick="document.getElementById('webUrlInput').value='https://en.wikipedia.org/wiki/Artificial_intelligence'">Wikipedia</button>
+              <button class="tool-chip" onclick="document.getElementById('webUrlInput').value='https://fastapi.tiangolo.com'">FastAPI Docs</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Uploaded Knowledge Inventory -->
+        <div class="inventory-section">
+          <div class="sidebar-section-title">
+            <span>Active Knowledge Base</span>
+            <span class="sidebar-badge-count" id="inventoryCount">0</span>
+          </div>
+          <div class="inventory-list" id="inventoryList">
+            <div class="empty-inventory" id="emptyInventoryMsg">No documents or URLs vectorized in this session yet.</div>
+          </div>
+        </div>
+
+        <!-- Quick Starters Prompts -->
+        <div class="quick-starters-section">
+          <div class="sidebar-section-title">
+            <span>Suggested Inquiries</span>
+          </div>
+          <div class="quick-starters-grid" id="quickStartersContainer">
+            <!-- Dynamic Starters based on Mode -->
+          </div>
+        </div>
+
+      </div>
+    </aside>
+
+    <!-- Center Chat Arena Space -->
+    <main class="chat-arena">
+      <div class="chat-feed" id="chatFeed">
+        
+        <!-- Welcome Hero State -->
+        <div class="welcome-hero" id="welcomeHero">
+          <div class="hero-bot-badge">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2">
+              <path d="M12 2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2 2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/>
+              <rect x="4" y="8" width="16" height="12" rx="3"/>
+              <circle cx="9" cy="13" r="1.5" fill="currentColor"/>
+              <circle cx="15" cy="13" r="1.5" fill="currentColor"/>
+              <path d="M10 17h4"/>
+            </svg>
+          </div>
+          <h2 class="hero-title">Experience Intelligent Synthesis</h2>
+          <p class="hero-subtitle">DocuDroid combines modern neural reasoning with high-throughput RAG to distill documents, analyze live web content, and generate insights.</p>
+
+          <div class="hero-feature-deck">
+            <div class="glass-card hero-feature-card tilt-card" onclick="switchMode('general')" data-sound="switch">
+              <div class="feature-icon-bubble general">💬</div>
+              <h4>General Reasoning</h4>
+              <p>Converse with Mistral LLM for complex architecture, reasoning, coding, and problem-solving.</p>
+            </div>
+
+            <div class="glass-card hero-feature-card tilt-card" onclick="switchMode('pdf')" data-sound="switch">
+              <div class="feature-icon-bubble pdf">📄</div>
+              <h4>Deep PDF Analytics</h4>
+              <p>Vectorize whitepapers, financial reports, or manuals with ChromaDB and perform semantic Q&A.</p>
+            </div>
+
+            <div class="glass-card hero-feature-card tilt-card" onclick="switchMode('web')" data-sound="switch">
+              <div class="feature-icon-bubble web">🌐</div>
+              <h4>Live Web Intelligence</h4>
+              <p>Ingest URLs on the fly to cross-reference articles, documentation, and real-time pages.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Typing indicator floating bar (Hidden by default) -->
+      <div class="typing-indicator-wrapper" id="typingIndicator" style="display: none; padding: 0 2rem 0.5rem;">
+        <div class="typing-bubble">
+          <div class="typing-wave-dots">
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+          </div>
+          <span class="typing-label" id="typingLabel">DocuDroid is synthesizing response...</span>
+        </div>
+      </div>
+
+      <!-- Floating 3D Glass Input Cockpit -->
+      <div class="input-cockpit-area">
+        <div class="cockpit-dock">
+          <div class="cockpit-input-row">
+            <textarea 
+              id="chatTextarea" 
+              class="cockpit-textarea" 
+              placeholder="Ask anything or prompt your vectorized documents... (Shift+Enter for new line)"
+              rows="1"></textarea>
+            
+            <button class="send-btn-3d" id="sendBtn" title="Send message (Enter)" data-sound="send">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+              </svg>
+            </button>
+          </div>
+
+          <div class="cockpit-toolbar">
+            <div class="toolbar-left">
+              <button class="tool-chip" id="triggerAttachPdfBtn" title="Attach PDF" data-sound="click">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+                </svg>
+                <span>Attach PDF</span>
+              </button>
+              <button class="tool-chip" id="triggerAttachWebBtn" title="Add Web URL" data-sound="click">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="2" y1="12" x2="22" y2="12"></line>
+                </svg>
+                <span>Add URL</span>
+              </button>
+              <button class="tool-chip" id="clearInputBtn" title="Clear input text" style="display:none;" data-sound="click">
+                <span>Clear</span>
+              </button>
+            </div>
+            <div class="toolbar-right">
+              <div class="shortcut-hint">
+                <span>Send:</span>
+                <span class="kbd-badge">Enter ↵</span>
+                <span>Newline:</span>
+                <span class="kbd-badge">Shift+↵</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Help & Shortcuts Modal -->
+  <div class="glass-modal-overlay" id="helpModal">
+    <div class="glass-modal-dialog">
+      <div class="modal-header-row">
+        <div class="modal-title-group">
+          <h2>DocuDroid Quick Tour & Shortcuts</h2>
+          <p>Supercharge your document research workflow</p>
+        </div>
+        <button class="modal-close-icon-btn" onclick="DocuDroidFX.closeModal('helpModal')" data-sound="click">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="6"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-feature-list">
+        <div class="modal-feature-item">
+          <div class="modal-feature-icon" style="background: rgba(0, 242, 254, 0.15); color: #00f2fe;">💬</div>
+          <div class="modal-feature-text">
+            <h4>Triple-Engine Routing</h4>
+            <p>Seamlessly toggle between General Chat, PDF Retrieval, and Web Scraping using the top glass dock.</p>
+          </div>
+        </div>
+        <div class="modal-feature-item">
+          <div class="modal-feature-icon" style="background: rgba(244, 63, 94, 0.15); color: #f43f5e;">⚡</div>
+          <div class="modal-feature-text">
+            <h4>Live Vector Polling</h4>
+            <p>PDF uploads are indexed asynchronously with background workers and real-time status telemetry.</p>
+          </div>
+        </div>
+        <div class="modal-feature-item">
+          <div class="modal-feature-icon" style="background: rgba(168, 85, 247, 0.15); color: #a855f7;">⌨️</div>
+          <div class="modal-feature-text">
+            <h4>Keyboard Accelerators</h4>
+            <p><kbd class="kbd-badge">Enter</kbd> to transmit, <kbd class="kbd-badge">Shift + Enter</kbd> for line breaks, <kbd class="kbd-badge">Ctrl + /</kbd> to quick-focus input dock, <kbd class="kbd-badge">Esc</kbd> to dismiss dialogs.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer-row">
+        <button class="btn-accent" onclick="DocuDroidFX.closeModal('helpModal')" data-sound="click">
+          <span>Ready to Explore</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Export Conversation Modal -->
+  <div class="glass-modal-overlay" id="exportModal">
+    <div class="glass-modal-dialog" style="max-width: 500px;">
+      <div class="modal-header-row">
+        <div class="modal-title-group">
+          <h2>Export Session</h2>
+          <p>Choose your preferred export format</p>
+        </div>
+        <button class="modal-close-icon-btn" onclick="DocuDroidFX.closeModal('exportModal')" data-sound="click">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="6"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.5rem;">
+        <button class="glass-card" style="padding: 1rem; display: flex; align-items: center; justify-content: space-between; cursor: pointer; text-align: left;" id="exportMdBtn" data-sound="click">
+          <div>
+            <div style="font-weight: 700; color: #fff; font-size: 0.95rem;">Markdown Document (.md)</div>
+            <div style="font-size: 0.78rem; color: var(--text-muted);">Clean formatted notes with headings and code blocks</div>
+          </div>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        </button>
+
+        <button class="glass-card" style="padding: 1rem; display: flex; align-items: center; justify-content: space-between; cursor: pointer; text-align: left;" id="exportJsonBtn" data-sound="click">
+          <div>
+            <div style="font-weight: 700; color: #fff; font-size: 0.95rem;">Structured JSON (.json)</div>
+            <div style="font-size: 0.78rem; color: var(--text-muted);">Raw conversation transcript with role metadata</div>
+          </div>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        </button>
+
+        <button class="glass-card" style="padding: 1rem; display: flex; align-items: center; justify-content: space-between; cursor: pointer; text-align: left;" id="copyFullChatBtn" data-sound="click">
+          <div>
+            <div style="font-weight: 700; color: #fff; font-size: 0.95rem;">Copy to Clipboard</div>
+            <div style="font-size: 0.78rem; color: var(--text-muted);">Instantly paste into notes, Slack, or email</div>
+          </div>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="/static/js/glass-effects.js"></script>
+  <script>
+    /**
+     * DocuDroid Chat Application Controller
+     */
+    let currentThreadId = null;
+    let currentMode = 'general';
+    const conversationHistory = []; // { role, text, timestamp, mode }
+    const uploadedDocs = new Set(); // filenames or URLs
+
+    // Mode-specific prompt starter definitions
+    const PROMPT_STARTERS = {
+      general: [
+        { icon: '💡', title: 'Brainstorm Solutions', prompt: 'Help me architect a scalable RAG pipeline for millions of enterprise documents.' },
+        { icon: '💻', title: 'Refactor Code', prompt: 'Write an asynchronous Python function to handle batch PDF parsing with error recovery.' },
+        { icon: '📊', title: 'Synthesize Concepts', prompt: 'Explain the difference between dense and sparse vector embeddings in vector databases.' }
+      ],
+      pdf: [
+        { icon: '📝', title: 'Executive Summary', prompt: 'Provide a concise executive summary of the uploaded document with key bullet points.' },
+        { icon: '🔍', title: 'Extract Action Items', prompt: 'Extract all action items, deliverables, and timelines mentioned in the document.' },
+        { icon: '⚠️', title: 'Audit Risks & Flaws', prompt: 'Identify any technical, financial, or security risks highlighted in the text.' }
+      ],
+      web: [
+        { icon: '📌', title: 'Key Takeaways', prompt: 'Extract the primary insights and facts from the ingested web pages.' },
+        { icon: '⚖️', title: 'Compare & Contrast', prompt: 'Summarize how the ingested web content compares to industry best practices.' },
+        { icon: '🔗', title: 'Extract References', prompt: 'List all APIs, tools, and libraries cited on this webpage.' }
+      ]
+    };
+
+    // Configure Marked.js with code highlighter
+    marked.setOptions({
+      highlight: function (code, lang) {
+        if (lang && hljs.getLanguage(lang)) {
+          try {
+            return hljs.highlight(code, { language: lang }).value;
+          } catch (e) {}
+        }
+        return hljs.highlightAuto(code).value;
+      },
+      breaks: true,
+      gfm: true
+    });
+
+    /**
+     * Initialize Chat Session with Backend
+     */
+    async function initSession() {
+      try {
+        const res = await fetch('/session/init', { method: 'POST' });
+        if (!res.ok) throw new Error('Failed to initialize session');
+        const data = await res.json();
+        currentThreadId = data.thread_id;
+        
+        // Update Session badge
+        const badge = document.getElementById('threadIdText');
+        if (badge) {
+          badge.textContent = currentThreadId.substring(0, 8) + '...';
+          badge.parentElement.title = `Session ID: ${currentThreadId} (Click to copy)`;
         }
 
-        function closeWelcomeModal() {
-            if (modal) {
-                modal.style.opacity = '0';
-                setTimeout(() => {
-                    modal.style.display = 'none';
-                }, 300);
-            }
+        // Add welcome message if feed is empty
+        appendAssistantMessage(data.message || 'DocuDroid is ready. How can I assist your document research today?');
+        DocuDroidFX.showToast('Secure Session Established', 'success', 2200);
+      } catch (err) {
+        console.error('Session init error:', err);
+        DocuDroidFX.showToast('Could not connect to backend server', 'error', 4000);
+      }
+    }
+
+    /**
+     * Switch Operating Mode
+     */
+    function switchMode(newMode) {
+      if (newMode === currentMode) return;
+      currentMode = newMode;
+
+      // Update Mode buttons
+      document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.mode === currentMode);
+      });
+
+      // Update Sidebar panels
+      const pdfSec = document.getElementById('pdfUploadSection');
+      const webSec = document.getElementById('webUploadSection');
+      if (pdfSec && webSec) {
+        pdfSec.style.display = (currentMode === 'pdf' || currentMode === 'general') ? 'block' : 'none';
+        webSec.style.display = (currentMode === 'web') ? 'block' : 'none';
+      }
+
+      // Update Quick Starters
+      renderQuickStarters();
+
+      // System notification
+      const modeNames = { general: 'General Reasoning', pdf: 'PDF Analysis', web: 'Web Research' };
+      DocuDroidFX.showToast(`Switched to ${modeNames[currentMode]} Mode`, 'info', 2000);
+    }
+
+    /**
+     * Render Quick Starters in Sidebar
+     */
+    function renderQuickStarters() {
+      const container = document.getElementById('quickStartersContainer');
+      if (!container) return;
+      container.innerHTML = '';
+
+      const starters = PROMPT_STARTERS[currentMode] || PROMPT_STARTERS.general;
+      starters.forEach(item => {
+        const btn = document.createElement('button');
+        btn.className = 'quick-starter-pill';
+        btn.innerHTML = `<span>${item.icon}</span><span style="font-weight: 600;">${item.title}</span>`;
+        btn.title = item.prompt;
+        btn.addEventListener('click', () => {
+          const textarea = document.getElementById('chatTextarea');
+          textarea.value = item.prompt;
+          textarea.dispatchEvent(new Event('input'));
+          textarea.focus();
+          DocuDroidFX.playSound('click');
+        });
+        container.appendChild(btn);
+      });
+    }
+
+    /**
+     * Send Message Logic
+     */
+    async function handleSendMessage() {
+      const textarea = document.getElementById('chatTextarea');
+      const text = textarea.value.trim();
+      if (!text) return;
+
+      // Hide Hero state if present
+      const hero = document.getElementById('welcomeHero');
+      if (hero) hero.style.display = 'none';
+
+      // Clear input
+      textarea.value = '';
+      textarea.style.height = 'auto';
+      document.getElementById('clearInputBtn').style.display = 'none';
+
+      // Append User message
+      appendUserMessage(text);
+      conversationHistory.push({ role: 'user', text, timestamp: new Date(), mode: currentMode });
+
+      // Disable send button & show typing indicator
+      const sendBtn = document.getElementById('sendBtn');
+      sendBtn.disabled = true;
+      showTypingIndicator(true, `Querying ${currentMode.toUpperCase()} engine...`);
+
+      try {
+        const response = await fetch('/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            thread_id: currentThreadId,
+            message: text,
+            mode: currentMode
+          })
+        });
+
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          throw new Error(errData.detail || 'Server encountered an error while processing request');
         }
 
-        if (closeBtn) {
-            closeBtn.addEventListener('click', closeWelcomeModal);
+        const data = await response.json();
+        const botReply = data.response || 'No response content generated.';
+        
+        appendAssistantMessage(botReply);
+        conversationHistory.push({ role: 'assistant', text: botReply, timestamp: new Date(), mode: currentMode });
+        DocuDroidFX.playSound('receive');
+      } catch (err) {
+        console.error('Chat error:', err);
+        appendErrorMessage(err.message || 'Failed to communicate with DocuDroid API');
+        DocuDroidFX.showToast(err.message || 'Message delivery failed', 'error');
+      } finally {
+        showTypingIndicator(false);
+        sendBtn.disabled = false;
+        textarea.focus();
+      }
+    }
+
+    /**
+     * Render User Message Bubble
+     */
+    function appendUserMessage(text) {
+      const feed = document.getElementById('chatFeed');
+      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      const wrap = document.createElement('div');
+      wrap.className = 'message-wrapper user-wrap';
+      wrap.innerHTML = `
+        <div class="avatar-chip avatar-user">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        </div>
+        <div class="message-content-box">
+          <div class="user-bubble">${escapeHtml(text)}</div>
+          <div class="message-meta">
+            <span>${timeStr}</span>
+          </div>
+        </div>
+      `;
+      feed.appendChild(wrap);
+      scrollToBottom();
+    }
+
+    /**
+     * Render Assistant Message Bubble
+     */
+    function appendAssistantMessage(markdownText, msgId = null) {
+      const feed = document.getElementById('chatFeed');
+      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const id = msgId || 'bot-msg-' + Date.now();
+
+      const parsedHtml = marked.parse(markdownText);
+
+      const wrap = document.createElement('div');
+      wrap.className = 'message-wrapper';
+      wrap.id = id;
+      wrap.innerHTML = `
+        <div class="avatar-chip avatar-bot">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2 2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><rect x="4" y="8" width="16" height="12" rx="3"/><circle cx="9" cy="13" r="1.5" fill="currentColor"/><circle cx="15" cy="13" r="1.5" fill="currentColor"/><path d="M10 17h4"/></svg>
+        </div>
+        <div class="message-content-box">
+          <div class="bot-bubble">${parsedHtml}</div>
+          <div class="message-meta">
+            <span style="font-weight: 600; color: var(--neon-cyan);">DocuDroid</span>
+            <span>•</span>
+            <span>${timeStr}</span>
+            <span>•</span>
+            <button class="meta-action-btn" onclick="copyMessageText('${id}')" title="Copy response to clipboard">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              <span>Copy</span>
+            </button>
+          </div>
+        </div>
+      `;
+
+      // Enhance pre code blocks with custom headers and copy buttons
+      wrap.querySelectorAll('pre code').forEach((codeBlock) => {
+        const pre = codeBlock.parentElement;
+        const lang = codeBlock.className.replace('language-', '') || 'code';
+        const rawCode = codeBlock.innerText;
+
+        const container = document.createElement('div');
+        container.className = 'code-block-container';
+        container.innerHTML = `
+          <div class="code-block-header">
+            <span>${lang.toUpperCase()}</span>
+            <button class="code-copy-btn">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              <span>Copy Code</span>
+            </button>
+          </div>
+        `;
+
+        pre.parentNode.insertBefore(container, pre);
+        container.appendChild(pre);
+
+        const copyBtn = container.querySelector('.code-copy-btn');
+        copyBtn.addEventListener('click', async () => {
+          await navigator.clipboard.writeText(rawCode);
+          copyBtn.innerHTML = '<span>Copied! ✓</span>';
+          copyBtn.style.color = 'var(--neon-emerald)';
+          DocuDroidFX.playSound('click');
+          setTimeout(() => {
+            copyBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg><span>Copy Code</span>';
+            copyBtn.style.color = '';
+          }, 2000);
+        });
+      });
+
+      feed.appendChild(wrap);
+      scrollToBottom();
+      return id;
+    }
+
+    /**
+     * Update Existing Message (Used for live polling statuses)
+     */
+    function updateMessageContent(msgId, markdownText) {
+      const el = document.getElementById(msgId);
+      if (!el) return;
+      const bubble = el.querySelector('.bot-bubble');
+      if (bubble) {
+        bubble.innerHTML = marked.parse(markdownText);
+        scrollToBottom();
+      }
+    }
+
+    /**
+     * Error Message Display
+     */
+    function appendErrorMessage(msg) {
+      const feed = document.getElementById('chatFeed');
+      const wrap = document.createElement('div');
+      wrap.className = 'message-wrapper';
+      wrap.innerHTML = `
+        <div class="avatar-chip" style="background: rgba(244, 63, 94, 0.2); border: 1px solid rgba(244, 63, 94, 0.4); color: #fb7185;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+        </div>
+        <div class="message-content-box">
+          <div class="bot-bubble" style="border-color: rgba(244, 63, 94, 0.3); background: rgba(30, 15, 20, 0.7); color: #fecdd3;">
+            <strong>Execution Error:</strong> ${escapeHtml(msg)}
+          </div>
+        </div>
+      `;
+      feed.appendChild(wrap);
+      scrollToBottom();
+    }
+
+    function showTypingIndicator(show, text = 'DocuDroid is thinking...') {
+      const ind = document.getElementById('typingIndicator');
+      const label = document.getElementById('typingLabel');
+      if (!ind) return;
+      if (show) {
+        if (label) label.textContent = text;
+        ind.style.display = 'flex';
+        scrollToBottom();
+      } else {
+        ind.style.display = 'none';
+      }
+    }
+
+    function scrollToBottom() {
+      const feed = document.getElementById('chatFeed');
+      if (feed) {
+        feed.scrollTop = feed.scrollHeight;
+      }
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    async function copyMessageText(msgId) {
+      const el = document.getElementById(msgId);
+      if (!el) return;
+      const bubble = el.querySelector('.bot-bubble');
+      if (bubble) {
+        await navigator.clipboard.writeText(bubble.innerText);
+        DocuDroidFX.showToast('Copied to clipboard! ✓', 'success', 1800);
+      }
+    }
+
+    /**
+     * PDF Upload Handling & Progress Polling
+     */
+    async function handlePdfUpload(file) {
+      if (!file || !file.name.toLowerCase().endsWith('.pdf')) {
+        DocuDroidFX.showToast('Please select a valid .pdf file', 'error');
+        return;
+      }
+
+      // Hide Hero
+      const hero = document.getElementById('welcomeHero');
+      if (hero) hero.style.display = 'none';
+
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('thread_id', currentThreadId);
+
+      const msgId = 'pdf-upload-' + Date.now();
+      appendAssistantMessage(`📄 **Uploading and Vectorizing PDF:** \`${file.name}\`...\n*Building dense semantic embeddings for retrieval...*`, msgId);
+
+      try {
+        const response = await fetch('/upload/pdf', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!response.ok) throw new Error('PDF upload request failed');
+        const data = await response.json();
+
+        addInventoryItem(file.name, 'pdf');
+        DocuDroidFX.showToast(`Vectorizing ${file.name}`, 'info');
+
+        if (data.process_id) {
+          pollPdfStatus(data.process_id, msgId, file.name);
         }
+      } catch (err) {
+        console.error('PDF upload error:', err);
+        updateMessageContent(msgId, `❌ **Error processing PDF \`${file.name}\`:** ${err.message}`);
+        DocuDroidFX.showToast('Failed to upload PDF', 'error');
+      }
+    }
 
-        // Close modal on outside click
-        modal?.addEventListener('click', function(e) {
-            if (e.target === modal) {
-                closeWelcomeModal();
-            }
+    async function pollPdfStatus(processId, msgId, fileName) {
+      try {
+        const res = await fetch(`/status/${processId}`);
+        if (res.ok) {
+          const data = await res.json();
+          updateMessageContent(msgId, `📄 **PDF Processing:** \`${fileName}\`\n\n> ${data.message || 'Vectorization in progress...'}`);
+          
+          if (data.status === 'processing') {
+            setTimeout(() => pollPdfStatus(processId, msgId, fileName), 1200);
+          } else if (data.status === 'completed' || !data.status) {
+            DocuDroidFX.playSound('success');
+            DocuDroidFX.showToast(`PDF "${fileName}" Ready for Analysis!`, 'success');
+          }
+        }
+      } catch (e) {
+        console.error('Status poll error:', e);
+      }
+    }
+
+    /**
+     * Web URL Ingest Handler
+     */
+    async function handleWebUpload() {
+      const input = document.getElementById('webUrlInput');
+      const url = input.value.trim();
+      if (!url) {
+        DocuDroidFX.showToast('Please enter a valid website URL', 'error');
+        return;
+      }
+
+      const hero = document.getElementById('welcomeHero');
+      if (hero) hero.style.display = 'none';
+
+      const msgId = 'web-upload-' + Date.now();
+      appendAssistantMessage(`🌐 **Scraping & Indexing Web Content:** [${url}](${url})\n*Parsing DOM, extracting semantic articles, and building RAG index...*`, msgId);
+
+      const addBtn = document.getElementById('webUrlAddBtn');
+      addBtn.disabled = true;
+
+      try {
+        const res = await fetch('/upload/web', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            thread_id: currentThreadId,
+            urls: [url]
+          })
         });
 
-        // Initialize application
-        window.addEventListener('DOMContentLoaded', () => {
-            initChat();
-            updateUIForMode('general');
-            
-            // Show welcome modal on first visit
-            if (!localStorage.getItem('docudroid_welcomed')) {
-                showWelcomeModal();
-                localStorage.setItem('docudroid_welcomed', 'true');
-            }
-            
-            // Focus input
-            document.getElementById('userInput').focus();
-        });
+        if (!res.ok) throw new Error('Failed to scrape web page');
+        const data = await res.json();
 
-        // Keyboard shortcuts
-        document.addEventListener('keydown', function(e) {
-            // Escape key to close modal
-            if (e.key === 'Escape' && modal && modal.style.opacity === '1') {
-                closeWelcomeModal();
-            }
-            
-            // Ctrl/Cmd + / to focus input
-            if ((e.ctrlKey || e.metaKey) && e.key === '/') {
-                e.preventDefault();
-                document.getElementById('userInput').focus();
-            }
+        addInventoryItem(url, 'web');
+        updateMessageContent(msgId, `🌐 **Web Content Ingested Successfully:**\n\n> ${data.message || 'Web knowledge vectorized and ready for queries.'}`);
+        input.value = '';
+        DocuDroidFX.playSound('success');
+        DocuDroidFX.showToast('Web Content Ingested!', 'success');
+      } catch (err) {
+        console.error('Web upload error:', err);
+        updateMessageContent(msgId, `❌ **Web Scraping Failed for \`${url}\`:** ${err.message}`);
+        DocuDroidFX.showToast('Web Ingestion Failed', 'error');
+      } finally {
+        addBtn.disabled = false;
+      }
+    }
+
+    /**
+     * Active Knowledge Inventory Manager
+     */
+    function addInventoryItem(name, type) {
+      if (uploadedDocs.has(name)) return;
+      uploadedDocs.add(name);
+
+      const list = document.getElementById('inventoryList');
+      const emptyMsg = document.getElementById('emptyInventoryMsg');
+      if (emptyMsg) emptyMsg.style.display = 'none';
+
+      const countBadge = document.getElementById('inventoryCount');
+      if (countBadge) countBadge.textContent = uploadedDocs.size;
+
+      const item = document.createElement('div');
+      item.className = 'inventory-item';
+      item.dataset.name = name;
+
+      const isWeb = type === 'web' || name.startsWith('http');
+      item.innerHTML = `
+        <div class="inventory-item-left">
+          <div class="inventory-type-icon ${isWeb ? 'icon-web' : 'icon-pdf'}">
+            ${isWeb ? '🌐' : '📄'}
+          </div>
+          <span class="inventory-item-name" title="${escapeHtml(name)}">${escapeHtml(name)}</span>
+        </div>
+        <button class="inventory-remove-btn" title="Remove item" data-sound="click">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="6"></line></svg>
+        </button>
+      `;
+
+      item.querySelector('.inventory-remove-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        uploadedDocs.delete(name);
+        item.remove();
+        if (countBadge) countBadge.textContent = uploadedDocs.size;
+        if (uploadedDocs.size === 0 && emptyMsg) {
+          emptyMsg.style.display = 'block';
+        }
+        DocuDroidFX.showToast(`Removed ${name}`, 'info', 1500);
+      });
+
+      list.appendChild(item);
+    }
+
+    /**
+     * Export Conversation
+     */
+    function exportConversation(format) {
+      if (conversationHistory.length === 0) {
+        DocuDroidFX.showToast('No chat history to export', 'error');
+        return;
+      }
+
+      if (format === 'md') {
+        let md = `# DocuDroid Conversation Transcript\n**Session Thread ID:** ${currentThreadId}\n**Exported At:** ${new Date().toLocaleString()}\n\n---\n\n`;
+        conversationHistory.forEach((msg) => {
+          const roleTitle = msg.role === 'user' ? '👤 User' : '🤖 DocuDroid';
+          md += `### ${roleTitle} (${new Date(msg.timestamp).toLocaleTimeString()})\n${msg.text}\n\n`;
         });
-    </script>
+        downloadFile(`DocuDroid-Session-${currentThreadId.substring(0,8)}.md`, md, 'text/markdown');
+      } else if (format === 'json') {
+        const json = JSON.stringify({ threadId: currentThreadId, exportedAt: new Date().toISOString(), messages: conversationHistory }, null, 2);
+        downloadFile(`DocuDroid-Session-${currentThreadId.substring(0,8)}.json`, json, 'application/json');
+      } else if (format === 'copy') {
+        let plain = `DocuDroid Conversation Transcript\nThread: ${currentThreadId}\n\n`;
+        conversationHistory.forEach((msg) => {
+          plain += `[${msg.role.toUpperCase()}] ${msg.text}\n\n`;
+        });
+        navigator.clipboard.writeText(plain);
+        DocuDroidFX.showToast('Full chat copied to clipboard! ✓', 'success');
+      }
+      DocuDroidFX.closeModal('exportModal');
+    }
+
+    function downloadFile(filename, content, mime) {
+      const blob = new Blob([content], { type: mime });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      DocuDroidFX.showToast(`Exported ${filename}`, 'success');
+    }
+
+    /**
+     * Event Listeners & Bootstrapping
+     */
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. Init Session
+      initSession();
+      renderQuickStarters();
+
+      // 2. Mode Selector Buttons
+      document.querySelectorAll('.mode-btn').forEach((btn) => {
+        btn.addEventListener('click', () => switchMode(btn.dataset.mode));
+      });
+
+      // 3. Textarea Auto-expand & Send Key handler
+      const textarea = document.getElementById('chatTextarea');
+      const clearBtn = document.getElementById('clearInputBtn');
+
+      textarea.addEventListener('input', function () {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 140) + 'px';
+        clearBtn.style.display = this.value.length > 0 ? 'inline-flex' : 'none';
+      });
+
+      textarea.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          handleSendMessage();
+        }
+      });
+
+      clearBtn.addEventListener('click', () => {
+        textarea.value = '';
+        textarea.style.height = 'auto';
+        clearBtn.style.display = 'none';
+        textarea.focus();
+      });
+
+      document.getElementById('sendBtn').addEventListener('click', handleSendMessage);
+
+      // 4. PDF File Dropzone & Input
+      const dropzone = document.getElementById('pdfDropzone');
+      const fileInput = document.getElementById('pdfFileInput');
+
+      dropzone.addEventListener('click', () => fileInput.click());
+      fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length) handlePdfUpload(e.target.files[0]);
+      });
+
+      ['dragenter', 'dragover'].forEach((name) => {
+        dropzone.addEventListener(name, (e) => {
+          e.preventDefault();
+          dropzone.classList.add('dragover');
+        });
+      });
+
+      ['dragleave', 'drop'].forEach((name) => {
+        dropzone.addEventListener(name, (e) => {
+          e.preventDefault();
+          dropzone.classList.remove('dragover');
+        });
+      });
+
+      dropzone.addEventListener('drop', (e) => {
+        if (e.dataTransfer.files.length) {
+          handlePdfUpload(e.dataTransfer.files[0]);
+        }
+      });
+
+      // 5. Web Ingest Button & Enter key
+      document.getElementById('webUrlAddBtn').addEventListener('click', handleWebUpload);
+      document.getElementById('webUrlInput').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') handleWebUpload();
+      });
+
+      // 6. Toolbar Attach Shortcuts
+      document.getElementById('triggerAttachPdfBtn').addEventListener('click', () => {
+        switchMode('pdf');
+        fileInput.click();
+      });
+
+      document.getElementById('triggerAttachWebBtn').addEventListener('click', () => {
+        switchMode('web');
+        document.getElementById('webUrlInput').focus();
+      });
+
+      // 7. Sidebar Toggle (Mobile & Desktop)
+      const sidebar = document.getElementById('appSidebar');
+      document.getElementById('sidebarToggleBtn').addEventListener('click', () => {
+        sidebar.classList.toggle('collapsed');
+      });
+
+      // 8. Session Thread ID 1-Click Copy
+      document.getElementById('threadIdBadge').addEventListener('click', async () => {
+        if (currentThreadId) {
+          await navigator.clipboard.writeText(currentThreadId);
+          DocuDroidFX.showToast('Session ID copied to clipboard! ✓', 'success');
+        }
+      });
+
+      // 9. New Chat / Reset Session Button
+      document.getElementById('newChatBtn').addEventListener('click', () => {
+        if (confirm('Start a fresh research session? This will reinitialize conversation state.')) {
+          const feed = document.getElementById('chatFeed');
+          feed.innerHTML = '';
+          const hero = document.getElementById('welcomeHero');
+          if (hero) {
+            hero.style.display = 'block';
+            feed.appendChild(hero);
+          }
+          conversationHistory.length = 0;
+          initSession();
+        }
+      });
+
+      // 10. Export Modal & Actions
+      document.getElementById('exportChatBtn').addEventListener('click', () => DocuDroidFX.openModal('exportModal'));
+      document.getElementById('exportMdBtn').addEventListener('click', () => exportConversation('md'));
+      document.getElementById('exportJsonBtn').addEventListener('click', () => exportConversation('json'));
+      document.getElementById('copyFullChatBtn').addEventListener('click', () => exportConversation('copy'));
+
+      // 11. Sound FX Toggle
+      document.getElementById('soundToggleBtn').addEventListener('click', () => {
+        const isEnabled = DocuDroidFX.toggleSound();
+        const icon = document.getElementById('soundIcon');
+        if (icon) {
+          icon.innerHTML = isEnabled 
+            ? '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>'
+            : '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line>';
+        }
+      });
+
+      // 12. Help Modal
+      document.getElementById('helpModalBtn').addEventListener('click', () => DocuDroidFX.openModal('helpModal'));
+
+      // First time onboarding check
+      if (!localStorage.getItem('docudroid_seen_tour')) {
+        setTimeout(() => DocuDroidFX.openModal('helpModal'), 600);
+        localStorage.setItem('docudroid_seen_tour', 'true');
+      }
+
+      // Keyboard Shortcut: Ctrl + / to focus input
+      document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === '/') {
+          e.preventDefault();
+          textarea.focus();
+        }
+      });
+    });
+  </script>
 </body>
 </html>
